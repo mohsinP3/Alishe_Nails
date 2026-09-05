@@ -4,19 +4,19 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Lightweight admin gate — no full user table/auth system was requested,
- * so access is a single shared password stored in .env (ADMIN_PASSWORD)
- * and a session flag. Good enough for one shop owner managing products;
- * swap for real Laravel auth + a users table if multiple admins are needed.
+ * Guards every /admin/* route (except login) behind the dedicated 'admin'
+ * Auth guard — a real, hashed-password, database-backed session, not a
+ * shared flag. See config/auth.php for the guard/provider definition.
  */
 class EnsureAdmin
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (! session('is_admin')) {
+        if (! Auth::guard('admin')->check()) {
             return redirect()->route('admin.login');
         }
 

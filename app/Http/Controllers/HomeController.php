@@ -9,14 +9,16 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $collections = Category::withCount('products')->get();
+        $collections = Category::withCount(['products' => fn ($q) => $q->where('is_active', true)])->get();
 
-        $bestSellers = Product::where('is_best_seller', true)
+        $bestSellers = Product::active()
+            ->where('is_best_seller', true)
             ->latest()
             ->take(4)
             ->get();
 
-        $featured = Product::where('is_featured', true)
+        $featured = Product::active()
+            ->where('is_featured', true)
             ->take(4)
             ->get();
 

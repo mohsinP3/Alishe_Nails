@@ -4,12 +4,16 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class AdminAuthController extends Controller
 {
     public function showLogin()
     {
-        if (session('is_admin')) {
+        if (Auth::guard('admin')->check()) {
             return redirect()->route('admin.dashboard');
         }
 
@@ -19,16 +23,29 @@ class AdminAuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
+            'email' => ['required', 'email'],
             'password' => ['required', 'string'],
         ]);
 
-        // Single shared password from .env — never hard-coded, never trust
-        // client-side checks. See ADMIN_PASSWORD in .env.example.
-        if ($request->password !== config('services.admin.password')) {
-            return back()->withErrors(['password' => 'Incorrect password.']);
+        $throttleKey = 'admin-login|'.Str::lower($request->input('email')).'|'.$request->ip();
+
+        // 5 attempts per minute — brute-force protection on the most
+        // sensitive login in the app.
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+
+            throw ValidationException::withMessages([
+                'email' => "Too many login attempts. Try again in {$seconds} seconds.",
+            ]);
         }
 
-        $request->session()->put('is_admin', true);
+        if (! Auth::guard('admin')->attempt($request->only('email', 'password'))) {
+            RateLimiter::hit($throttleKey, 60);
+
+            return back()->withErrors(['email' => 'Invalid credentials.'])->onlyInput('email');
+        }
+
+        RateLimiter::clear($throttleKey);
         $request->session()->regenerate();
 
         return redirect()->route('admin.dashboard')->with('success', 'Welcome back!');
@@ -36,8 +53,9 @@ class AdminAuthController extends Controller
 
     public function logout(Request $request)
     {
-        $request->session()->forget('is_admin');
-        $request->session()->regenerate();
+        Auth::guard('admin')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return redirect()->route('admin.login')->with('success', 'Logged out.');
     }

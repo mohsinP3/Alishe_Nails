@@ -23,6 +23,25 @@
                     <input type="hidden" name="q" value="{{ request('q') }}">
                     <input type="hidden" name="sort" value="{{ request('sort') }}">
 
+                    @if (isset($categories) && $categories->isNotEmpty())
+                        <div class="filter-group">
+                            <h6>Category</h6>
+                            @foreach ($categories as $cat)
+                                @php
+                                    $catSelected = is_array(request('category'))
+                                        ? in_array($cat->slug, request('category'))
+                                        : request('category') === $cat->slug;
+                                @endphp
+                                <label class="filter-option">
+                                    <input type="checkbox" name="category[]" value="{{ $cat->slug }}"
+                                        onchange="this.form.requestSubmit()"
+                                        {{ $catSelected ? 'checked' : '' }}>
+                                    {{ $cat->name }} ({{ $cat->products_count ?? 0 }})
+                                </label>
+                            @endforeach
+                        </div>
+                    @endif
+
                     <div class="filter-group">
                         <h6>Shape</h6>
                         @foreach (['Almond', 'Coffin', 'Square', 'Stiletto'] as $shape)
@@ -75,8 +94,8 @@
                     </div>
                     <div class="shop-toolbar__actions">
                         <form method="GET" action="{{ route('shop.index') }}" style="display:flex;gap:12px;">
-                            @foreach (['shape', 'length', 'finish'] as $key)
-                                @foreach (request($key, []) as $value)
+                            @foreach (['category', 'shape', 'length', 'finish'] as $key)
+                                @foreach ((array) request($key, []) as $value)
                                     <input type="hidden" name="{{ $key }}[]" value="{{ $value }}">
                                 @endforeach
                             @endforeach
@@ -85,8 +104,8 @@
                         </form>
 
                         <form method="GET" action="{{ route('shop.index') }}">
-                            @foreach (['shape', 'length', 'finish'] as $key)
-                                @foreach (request($key, []) as $value)
+                            @foreach (['category', 'shape', 'length', 'finish'] as $key)
+                                @foreach ((array) request($key, []) as $value)
                                     <input type="hidden" name="{{ $key }}[]" value="{{ $value }}">
                                 @endforeach
                             @endforeach
@@ -101,13 +120,13 @@
                     </div>
                 </div>
 
-                @if (request()->hasAny(['shape', 'length', 'finish']))
+                @if (request()->hasAny(['category', 'shape', 'length', 'finish']))
                     <div class="active-filters">
-                        @foreach (['shape', 'length', 'finish'] as $key)
-                            @foreach (request($key, []) as $value)
+                        @foreach (['category', 'shape', 'length', 'finish'] as $key)
+                            @foreach ((array) request($key, []) as $value)
                                 <span class="filter-chip">
                                     {{ ucfirst($key) }}: {{ $value }}
-                                    <a href="{{ route('shop.index', array_merge(request()->except($key), [$key => array_diff(request($key, []), [$value])])) }}">
+                                    <a href="{{ route('shop.index', array_merge(request()->except($key), [$key => array_diff((array) request($key, []), [$value])])) }}">
                                         <button type="button">&times;</button>
                                     </a>
                                 </span>

@@ -24,6 +24,7 @@ class ReviewSeeder extends Seeder
                 ], [
                     'rating' => $review['rating'],
                     'comment' => $review['comment'],
+                    'is_approved' => true,
                 ]);
             }
         });

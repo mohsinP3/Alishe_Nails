@@ -7,7 +7,7 @@
     <div class="admin-page-head">
         <div>
             <h1>Customers</h1>
-            <p>{{ $customers->total() }} customers, based on order history</p>
+            <p>{{ $customers->total() }} registered customers @if($guestOrderCount > 0)&middot; {{ $guestOrderCount }} guest checkout(s) with no account @endif</p>
         </div>
     </div>
 
@@ -21,30 +21,30 @@
                 <tr>
                     <th>Customer</th>
                     <th>Contact</th>
-                    <th>City</th>
                     <th>Orders</th>
                     <th>Total Spent</th>
-                    <th>Last Order</th>
+                    <th>Joined</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
                 @forelse ($customers as $customer)
                     <tr>
                         <td>
-                            <span class="table-avatar">{{ strtoupper(substr($customer->first_name, 0, 1).substr($customer->last_name, 0, 1)) }}</span>
-                            {{ $customer->first_name }} {{ $customer->last_name }}
+                            <span class="table-avatar">{{ strtoupper(substr($customer->name, 0, 2)) }}</span>
+                            {{ $customer->name }}
                         </td>
                         <td>
                             <div>{{ $customer->email }}</div>
-                            <div style="font-size:.78rem;color:rgba(43,29,29,.6);">{{ $customer->phone }}</div>
+                            <div style="font-size:.78rem;color:rgba(43,29,29,.6);">{{ $customer->phone ?? '—' }}</div>
                         </td>
-                        <td>{{ $customer->city }}</td>
                         <td>{{ $customer->orders_count }}</td>
-                        <td>PKR {{ number_format($customer->total_spent, 0) }}</td>
-                        <td>{{ \Illuminate\Support\Carbon::parse($customer->last_order_at)->format('M j, Y') }}</td>
+                        <td>PKR {{ number_format($customer->orders_sum_total ?? 0, 0) }}</td>
+                        <td>{{ $customer->created_at->format('M j, Y') }}</td>
+                        <td><a href="{{ route('admin.customers.show', $customer) }}" class="btn btn-outline btn-sm">View</a></td>
                     </tr>
                 @empty
-                    <tr><td colspan="6" style="text-align:center;padding:30px;">No customers yet — they'll appear here after the first order.</td></tr>
+                    <tr><td colspan="6" style="text-align:center;padding:30px;">No registered customers yet.</td></tr>
                 @endforelse
             </tbody>
         </table>

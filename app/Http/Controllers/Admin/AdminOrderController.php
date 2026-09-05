@@ -3,8 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\OrderStatusUpdateMail;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class AdminOrderController extends Controller
 {
@@ -40,11 +44,44 @@ class AdminOrderController extends Controller
     public function updateStatus(Request $request, Order $order)
     {
         $validated = $request->validate([
-            'status' => ['required', 'in:pending,processing,completed,cancelled'],
+            // Allowlist — a status value can never be anything the client invents.
+            'status' => ['required', 'in:'.implode(',', Order::STATUSES)],
+        ]);
+
+        $previousStatus = $order->status;
+
+        DB::transaction(function () use ($order, $validated, $previousStatus) {
+            // Restore stock if an order that had already reserved it gets cancelled.
+            if ($validated['status'] === 'cancelled' && $previousStatus !== 'cancelled') {
+                foreach ($order->items as $item) {
+                    if ($item->product_id) {
+                        $item->product()->lockForUpdate()->first()?->increment('stock', $item->quantity);
+                    }
+                }
+            }
+
+            $order->update(['status' => $validated['status']]);
+        });
+
+        if ($validated['status'] !== $previousStatus) {
+            try {
+                Mail::to($order->email)->send(new OrderStatusUpdateMail($order));
+            } catch (\Throwable $e) {
+                Log::warning('Order status email failed: '.$e->getMessage());
+            }
+        }
+
+        return back()->with('success', 'Order #'.$order->order_number.' marked as '.$validated['status'].'.');
+    }
+
+    public function updatePaymentStatus(Request $request, Order $order)
+    {
+        $validated = $request->validate([
+            'payment_status' => ['required', 'in:'.implode(',', Order::PAYMENT_STATUSES)],
         ]);
 
         $order->update($validated);
 
-        return back()->with('success', 'Order #'.$order->order_number.' marked as '.$validated['status'].'.');
+        return back()->with('success', 'Payment status updated to '.$validated['payment_status'].'.');
     }
 }

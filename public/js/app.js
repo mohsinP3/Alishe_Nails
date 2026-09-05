@@ -82,6 +82,44 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
+  // ---------- Navbar search toggle ----------
+  var searchToggle = document.querySelectorAll('[data-search-toggle]');
+  var searchForm = document.querySelector('[data-search-form]');
+  var searchClose = document.querySelector('[data-search-close]');
+
+  searchToggle.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      if (!searchForm) return;
+      var isOpen = searchForm.style.display !== 'none';
+      searchForm.style.display = isOpen ? 'none' : 'flex';
+      if (!isOpen) {
+        var input = searchForm.querySelector('input[type=text]');
+        if (input) input.focus();
+      }
+    });
+  });
+
+  if (searchClose && searchForm) {
+    searchClose.addEventListener('click', function () {
+      searchForm.style.display = 'none';
+    });
+  }
+
+  // ---------- Navbar account menu dropdown ----------
+  var accountToggle = document.querySelector('[data-account-toggle]');
+  var accountMenu = document.querySelector('[data-account-menu]');
+  if (accountToggle && accountMenu) {
+    accountToggle.addEventListener('click', function (e) {
+      e.stopPropagation();
+      accountMenu.style.display = accountMenu.style.display === 'none' ? 'block' : 'none';
+    });
+    document.addEventListener('click', function (e) {
+      if (!accountMenu.contains(e.target) && e.target !== accountToggle) {
+        accountMenu.style.display = 'none';
+      }
+    });
+  }
+
   // ---------- Auto-dismiss alerts ----------
   document.querySelectorAll('.alert').forEach(function (alertBox) {
     setTimeout(function () {

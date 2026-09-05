@@ -16,6 +16,8 @@
                 <h3 style="margin-bottom:20px;">Send us a message</h3>
 
                 <form action="{{ route('contact.store') }}" method="POST">
+                    {{-- Honeypot: hidden from real visitors via CSS; ContactRequest rejects any submission that fills this in. --}}
+                    <input type="text" name="website" value="" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;" aria-hidden="true">
                     @csrf
 
                     <div class="form-grid">

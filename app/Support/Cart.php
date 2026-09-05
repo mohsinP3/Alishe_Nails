@@ -20,18 +20,39 @@ class Cart
         return Session::get(self::CART_KEY, []);
     }
 
-    public static function add(Product $product, int $qty = 1, ?string $shape = null, ?string $size = null): string
+    /**
+     * Returns the row ID on success, or null if the product is inactive /
+     * out of stock / the requested quantity (existing + new) would exceed
+     * available stock. The controller checks for null and shows an error —
+     * the cart never silently holds more than what's actually in stock.
+     */
+    public static function add(Product $product, int $qty = 1, ?string $shape = null, ?string $size = null): ?string
     {
+        if (! $product->is_active || $product->stock <= 0) {
+            return null;
+        }
+
         $cart = self::content();
+        $qty = max(1, $qty);
 
         // Merge quantity if the exact same product+shape+size already exists.
         foreach ($cart as $rowId => $row) {
             if ($row['product_id'] === $product->id && $row['shape'] === $shape && $row['size'] === $size) {
-                $cart[$rowId]['qty'] += $qty;
+                $newQty = $row['qty'] + $qty;
+
+                if ($newQty > $product->stock) {
+                    return null;
+                }
+
+                $cart[$rowId]['qty'] = $newQty;
                 Session::put(self::CART_KEY, $cart);
 
                 return $rowId;
             }
+        }
+
+        if ($qty > $product->stock) {
+            return null;
         }
 
         $rowId = Str::random(12);
@@ -43,7 +64,7 @@ class Cart
             'price' => (float) $product->price,
             'shape' => $shape,
             'size' => $size,
-            'qty' => max(1, $qty),
+            'qty' => $qty,
         ];
 
         Session::put(self::CART_KEY, $cart);
@@ -61,10 +82,28 @@ class Cart
 
         if ($qty <= 0) {
             unset($cart[$rowId]);
-        } else {
-            $cart[$rowId]['qty'] = $qty;
+            Session::put(self::CART_KEY, $cart);
+
+            return;
         }
 
+        $product = Product::find($cart[$rowId]['product_id']);
+        if (! $product || ! $product->is_active) {
+            unset($cart[$rowId]);
+            Session::put(self::CART_KEY, $cart);
+
+            return;
+        }
+
+        $qty = min($qty, max(0, $product->stock));
+        if ($qty <= 0) {
+            unset($cart[$rowId]);
+            Session::put(self::CART_KEY, $cart);
+
+            return;
+        }
+
+        $cart[$rowId]['qty'] = $qty;
         Session::put(self::CART_KEY, $cart);
     }
 

@@ -9,10 +9,20 @@ class ShopController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::query()->with('category');
+        $query = Product::active()->with('category');
 
         if ($search = $request->string('q')->trim()->toString()) {
             $query->where('name', 'like', "%{$search}%");
+        }
+
+        if ($category = $request->string('category')->trim()->toString()) {
+            $query->whereHas('category', function ($q) use ($category) {
+                $q->where('slug', $category)->orWhere('id', $category);
+            });
+        } elseif ($categoriesParam = $request->array('category')) {
+            $query->whereHas('category', function ($q) use ($categoriesParam) {
+                $q->whereIn('slug', $categoriesParam)->orWhereIn('id', $categoriesParam);
+            });
         }
 
         if ($shapes = $request->array('shape')) {
@@ -36,11 +46,13 @@ class ShopController extends Controller
 
         $products = $query->paginate(12)->withQueryString();
 
-        // Facet counts for the filter sidebar, computed once from all products.
-        $shapeCounts = Product::selectRaw('shape, count(*) as total')->groupBy('shape')->pluck('total', 'shape');
-        $lengthCounts = Product::selectRaw('length, count(*) as total')->groupBy('length')->pluck('total', 'length');
-        $finishCounts = Product::selectRaw('finish, count(*) as total')->groupBy('finish')->pluck('total', 'finish');
+        $categories = \App\Models\Category::withCount(['products' => fn ($q) => $q->where('is_active', true)])->get();
 
-        return view('shop.index', compact('products', 'shapeCounts', 'lengthCounts', 'finishCounts'));
+        // Facet counts for the filter sidebar, computed once from all active products.
+        $shapeCounts = Product::active()->selectRaw('shape, count(*) as total')->groupBy('shape')->pluck('total', 'shape');
+        $lengthCounts = Product::active()->selectRaw('length, count(*) as total')->groupBy('length')->pluck('total', 'length');
+        $finishCounts = Product::active()->selectRaw('finish, count(*) as total')->groupBy('finish')->pluck('total', 'finish');
+
+        return view('shop.index', compact('products', 'categories', 'shapeCounts', 'lengthCounts', 'finishCounts'));
     }
 }

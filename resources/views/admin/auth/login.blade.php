@@ -10,6 +10,7 @@
             @csrf
             <div class="form-field" style="margin-bottom:18px;">
                 <label for="password">Password</label>
+                <input type="email" name="email" required>
                 <input type="password" id="password" name="password" required autofocus>
                 @error('password') <div class="error">{{ $message }}</div> @enderror
             </div>

@@ -117,6 +117,13 @@
                         Show in Featured Collections
                     </label>
                 </div>
+
+                <div class="form-field">
+                    <label style="display:flex;align-items:center;gap:8px;">
+                        <input type="checkbox" name="is_active" value="1" {{ old('is_active', $product->is_active ?? true) ? 'checked' : '' }}>
+                        Active (visible in shop)
+                    </label>
+                </div>
             </div>
 
             <div style="display:flex;gap:12px;margin-top:24px;">

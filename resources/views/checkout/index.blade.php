@@ -20,16 +20,24 @@
                     <div class="checkout-card">
                         <h3><i class="fa-solid fa-truck"></i> Shipping Details</h3>
 
+                        @guest('web')
+                            <p style="font-size:.85rem;background:var(--ivory);padding:12px 14px;border-radius:8px;margin-top:14px;">
+                                <a href="{{ route('login') }}" style="text-decoration:underline;font-weight:600;">Log in</a>
+                                or <a href="{{ route('register') }}" style="text-decoration:underline;font-weight:600;">create an account</a>
+                                to track this order, or continue as a guest below.
+                            </p>
+                        @endguest
+
                         <div class="form-grid">
                             <div class="form-field full">
                                 <label for="email">Email Address</label>
-                                <input type="email" id="email" name="email" placeholder="you@example.com" value="{{ old('email') }}" required>
+                                <input type="email" id="email" name="email" placeholder="you@example.com" value="{{ old('email', $user?->email) }}" required>
                                 @error('email') <div class="error">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="form-field">
                                 <label for="first_name">First Name</label>
-                                <input type="text" id="first_name" name="first_name" placeholder="Jane" value="{{ old('first_name') }}" required>
+                                <input type="text" id="first_name" name="first_name" placeholder="Jane" value="{{ old('first_name', $user ? explode(' ', $user->name)[0] : '') }}" required>
                                 @error('first_name') <div class="error">{{ $message }}</div> @enderror
                             </div>
 
@@ -53,7 +61,7 @@
 
                             <div class="form-field">
                                 <label for="phone">Phone Number</label>
-                                <input type="text" id="phone" name="phone" placeholder="+92 300 1234567" value="{{ old('phone') }}" required>
+                                <input type="text" id="phone" name="phone" placeholder="+92 300 1234567" value="{{ old('phone', $user?->phone) }}" required>
                                 @error('phone') <div class="error">{{ $message }}</div> @enderror
                             </div>
                         </div>

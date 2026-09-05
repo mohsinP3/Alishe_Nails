@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\ProductRequest;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -10,9 +11,15 @@ use Illuminate\Support\Str;
 
 class AdminProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::with('category')->latest()->paginate(15);
+        $query = Product::with('category')->latest();
+
+        if ($search = $request->string('q')->trim()->toString()) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        $products = $query->paginate(15)->withQueryString();
 
         return view('admin.products.index', compact('products'));
     }
@@ -27,14 +34,15 @@ class AdminProductController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(ProductRequest $request)
     {
-        $validated = $this->validated($request);
+        $validated = $request->validated();
 
         $validated['slug'] = Str::slug($validated['name']);
         $validated['sku'] = 'ALN-'.strtoupper(Str::random(6));
         $validated['is_best_seller'] = $request->boolean('is_best_seller');
         $validated['is_featured'] = $request->boolean('is_featured');
+        $validated['is_active'] = $request->has('is_active') ? $request->boolean('is_active') : true;
 
         if ($request->hasFile('image')) {
             $validated['image'] = $this->storeImage($request);
@@ -52,12 +60,13 @@ class AdminProductController extends Controller
         return view('admin.products.form', compact('product', 'categories'));
     }
 
-    public function update(Request $request, Product $product)
+    public function update(ProductRequest $request, Product $product)
     {
-        $validated = $this->validated($request, $product->id);
+        $validated = $request->validated();
         $validated['slug'] = Str::slug($validated['name']);
         $validated['is_best_seller'] = $request->boolean('is_best_seller');
         $validated['is_featured'] = $request->boolean('is_featured');
+        $validated['is_active'] = $request->boolean('is_active');
 
         if ($request->hasFile('image')) {
             $validated['image'] = $this->storeImage($request);
@@ -76,38 +85,18 @@ class AdminProductController extends Controller
     }
 
     /**
-     * Shared validation for store/update. Never trust the client — every
-     * field is re-validated here regardless of what the form already checked.
-     */
-    private function validated(Request $request, ?int $ignoreId = null): array
-    {
-        return $request->validate([
-            'name' => ['required', 'string', 'max:150'],
-            'category_id' => ['nullable', 'exists:categories,id'],
-            'price' => ['required', 'numeric', 'min:0'],
-            'compare_at_price' => ['nullable', 'numeric', 'min:0'],
-            'short_description' => ['nullable', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'shape' => ['nullable', 'string', 'max:50'],
-            'length' => ['nullable', 'string', 'max:50'],
-            'finish' => ['nullable', 'string', 'max:50'],
-            'badge' => ['nullable', 'string', 'max:30'],
-            'is_best_seller' => ['nullable', 'boolean'],
-            'is_featured' => ['nullable', 'boolean'],
-            'stock' => ['required', 'integer', 'min:0'],
-            'image' => ['nullable', 'image', 'max:4096'],
-        ]);
-    }
-
-    /**
-     * Saves the uploaded image straight into public/images/products so it
-     * works with the existing Product::image_url accessor without needing
-     * `php artisan storage:link`.
+     * Saves the uploaded image straight into public/images/products.
+     * The filename is fully regenerated (slug + timestamp + validated
+     * extension) — the client-supplied original filename is never trusted
+     * or used directly, which rules out path traversal / double-extension
+     * tricks. ProductRequest's `image`+`mimes` rules already reject
+     * non-image / executable uploads before this ever runs.
      */
     private function storeImage(Request $request): string
     {
         $file = $request->file('image');
-        $filename = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)).'-'.time().'.'.$file->getClientOriginalExtension();
+        $extension = strtolower($file->getClientOriginalExtension());
+        $filename = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)).'-'.time().'-'.Str::random(6).'.'.$extension;
 
         $file->move(public_path('images/products'), $filename);
 

@@ -21,7 +21,7 @@
         </nav>
 
         <div class="navbar__actions">
-            <button class="navbar__icon-btn" type="button" aria-label="Search">
+            <button class="navbar__icon-btn" type="button" data-search-toggle aria-label="Search">
                 <i class="fa-solid fa-magnifying-glass"></i>
             </button>
 
@@ -30,12 +30,44 @@
                 <span class="navbar__cart-count">{{ $cartCount ?? 0 }}</span>
             </a>
 
-            <span class="navbar__avatar" role="img" aria-label="Account"></span>
+            @auth('web')
+                <div class="navbar__account" style="position:relative;">
+                    <button class="navbar__icon-btn" type="button" data-account-toggle aria-label="Account menu">
+                        <span class="navbar__avatar" role="img" aria-label="{{ auth('web')->user()->name }}" style="display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--rose-dark);font-weight:700;">
+                            {{ strtoupper(substr(auth('web')->user()->name, 0, 1)) }}
+                        </span>
+                    </button>
+                    <div class="navbar__account-menu" data-account-menu style="display:none;position:absolute;right:0;top:38px;background:#fff;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:170px;padding:8px;z-index:60;">
+                        <a href="{{ route('account.profile') }}" style="display:block;padding:8px 10px;font-size:.85rem;border-radius:6px;">My Account</a>
+                        <a href="{{ route('account.orders') }}" style="display:block;padding:8px 10px;font-size:.85rem;border-radius:6px;">My Orders</a>
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" style="display:block;width:100%;text-align:left;padding:8px 10px;font-size:.85rem;border-radius:6px;background:none;border:none;cursor:pointer;font-family:inherit;color:#B3261E;">Logout</button>
+                        </form>
+                    </div>
+                </div>
+            @else
+                <a href="{{ route('login') }}" class="navbar__icon-btn" aria-label="Login" title="Login / Register">
+                    <i class="fa-solid fa-user" style="font-size:1.1rem;color:var(--espresso);"></i>
+                </a>
+            @endauth
 
             <button class="navbar__toggle" type="button" aria-label="Toggle menu" data-navbar-toggle>
                 <i class="fa-solid fa-bars"></i>
             </button>
         </div>
+    </div>
+
+    {{-- Search Overlay Bar --}}
+    <div class="container" data-search-form style="display:none;padding-block:8px 12px;">
+        <form action="{{ route('shop.index') }}" method="GET" style="display:flex;align-items:center;gap:8px;width:100%;background:#fff;border:1px solid var(--rose);border-radius:8px;padding:6px 12px;box-shadow:0 4px 12px rgba(0,0,0,.08);">
+            <i class="fa-solid fa-magnifying-glass" style="color:var(--rose-dark);"></i>
+            <input type="text" name="q" value="{{ request('q') }}" placeholder="Search press-on nails (e.g. Ombre, Mauve, Coffin)..." style="flex:1;border:none;outline:none;background:transparent;font-size:.9rem;font-family:inherit;" required>
+            <button type="submit" class="btn btn-primary btn-sm" style="padding:6px 14px;">Search</button>
+            <button type="button" data-search-close style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:#8a8a8a;padding:4px;" aria-label="Close search">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </form>
     </div>
 
     <div class="container">
@@ -45,6 +77,19 @@
             <li><a href="{{ route('about.index') }}">About Us</a></li>
             <li><a href="{{ route('how-to-apply.index') }}">How to Apply</a></li>
             <li><a href="{{ route('contact.index') }}">Contact</a></li>
+            @auth('web')
+                <li><a href="{{ route('account.profile') }}">My Account</a></li>
+                <li><a href="{{ route('account.orders') }}">My Orders</a></li>
+                <li>
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit" style="background:none;border:none;padding:10px 4px;font-family:inherit;font-size:1rem;cursor:pointer;color:#B3261E;">Logout</button>
+                    </form>
+                </li>
+            @else
+                <li><a href="{{ route('login') }}">Login</a></li>
+                <li><a href="{{ route('register') }}">Create Account</a></li>
+            @endauth
         </ul>
     </div>
 </header>

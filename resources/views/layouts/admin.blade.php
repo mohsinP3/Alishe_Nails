@@ -11,7 +11,7 @@
 </head>
 <body class="admin-body">
 
-    @if (session('is_admin'))
+    @if (auth()->guard('admin')->check())
         <div class="admin-shell">
             {{-- ---------- Sidebar ---------- --}}
             <aside class="admin-sidebar">
@@ -31,8 +31,17 @@
                     <a href="{{ route('admin.products.index') }}" class="admin-nav-link {{ request()->routeIs('admin.products.*') ? 'is-active' : '' }}">
                         <i class="fa-solid fa-box"></i> Products
                     </a>
+                    <a href="{{ route('admin.categories.index') }}" class="admin-nav-link {{ request()->routeIs('admin.categories.*') ? 'is-active' : '' }}">
+                        <i class="fa-solid fa-tags"></i> Categories
+                    </a>
+                    <a href="{{ route('admin.shipping.index') }}" class="admin-nav-link {{ request()->routeIs('admin.shipping.*') ? 'is-active' : '' }}">
+                        <i class="fa-solid fa-truck"></i> Shipping Rates
+                    </a>
                     <a href="{{ route('admin.customers.index') }}" class="admin-nav-link {{ request()->routeIs('admin.customers.*') ? 'is-active' : '' }}">
                         <i class="fa-solid fa-users"></i> Customers
+                    </a>
+                    <a href="{{ route('admin.reviews.index') }}" class="admin-nav-link {{ request()->routeIs('admin.reviews.*') ? 'is-active' : '' }}">
+                        <i class="fa-solid fa-star"></i> Reviews
                     </a>
                     <a href="{{ route('admin.analytics.index') }}" class="admin-nav-link {{ request()->routeIs('admin.analytics.*') ? 'is-active' : '' }}">
                         <i class="fa-solid fa-chart-line"></i> Analytics

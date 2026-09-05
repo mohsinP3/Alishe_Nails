@@ -37,12 +37,8 @@
         <div>
             <h5>Stay Inspired</h5>
             <p style="font-size:.85rem;color:rgba(43,29,29,.7);">Join our newsletter for exclusive drops.</p>
-            {{-- Newsletter signup posts to the contact endpoint until a dedicated
-                 Subscriber model/route is required — avoids inventing an unused table. --}}
-            <form action="{{ route('contact.store') }}" method="POST" class="newsletter-form">
+            <form action="{{ route('newsletter.subscribe') }}" method="POST" class="newsletter-form">
                 @csrf
-                <input type="hidden" name="name" value="Newsletter Subscriber">
-                <input type="hidden" name="message" value="Newsletter signup">
                 <input type="email" name="email" placeholder="Your email" required>
                 <button type="submit" class="btn btn-primary" aria-label="Subscribe">
                     <i class="fa-solid fa-paper-plane"></i>

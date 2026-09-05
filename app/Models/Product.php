@@ -29,6 +29,7 @@ class Product extends Model
         'is_best_seller',
         'is_featured',
         'stock',
+        'is_active',
         'whats_included',
     ];
 
@@ -39,7 +40,10 @@ class Product extends Model
         'compare_at_price' => 'decimal:2',
         'is_best_seller' => 'boolean',
         'is_featured' => 'boolean',
+        'is_active' => 'boolean',
     ];
+
+    public const LOW_STOCK_THRESHOLD = 5;
 
     public function category(): BelongsTo
     {
@@ -51,9 +55,35 @@ class Product extends Model
         return $this->hasMany(Review::class);
     }
 
+    /** Only approved reviews — use this on any public-facing page. */
+    public function approvedReviews(): HasMany
+    {
+        return $this->hasMany(Review::class)->where('is_approved', true);
+    }
+
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function isInStock(): bool
+    {
+        return $this->stock > 0;
+    }
+
+    public function isLowStock(): bool
+    {
+        return $this->stock > 0 && $this->stock <= self::LOW_STOCK_THRESHOLD;
+    }
+
+    public function isOutOfStock(): bool
+    {
+        return $this->stock <= 0;
     }
 
     /**
@@ -62,12 +92,12 @@ class Product extends Model
      */
     public function getAverageRatingAttribute(): float
     {
-        return round($this->reviews()->avg('rating') ?? 0, 1);
+        return round($this->approvedReviews()->avg('rating') ?? 0, 1);
     }
 
     public function getReviewsCountAttribute(): int
     {
-        return $this->reviews()->count();
+        return $this->approvedReviews()->count();
     }
 
     /**

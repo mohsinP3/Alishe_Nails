@@ -4,40 +4,40 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class AdminCustomerController extends Controller
 {
     /**
-     * There is no separate customers table (no account/login system was
-     * requested for shoppers) — every checkout captures name/email/phone on
-     * the Order itself, so "customers" here are grouped from that order
-     * history. If real customer accounts are added later, swap this query
-     * for Customer::query() without touching the view.
+     * Real registered customer accounts (App\Models\User), each with their
+     * order count/total spent. Guest checkouts (no account) are counted
+     * separately below since they're not tied to a customer record.
      */
     public function index(Request $request)
     {
-        $query = Order::selectRaw('
-                email,
-                MAX(first_name) as first_name,
-                MAX(last_name) as last_name,
-                MAX(phone) as phone,
-                MAX(city) as city,
-                COUNT(*) as orders_count,
-                SUM(total) as total_spent,
-                MAX(created_at) as last_order_at
-            ')
-            ->groupBy('email')
-            ->orderByDesc('total_spent');
+        $query = User::withCount('orders')
+            ->withSum('orders', 'total')
+            ->orderByDesc('orders_sum_total');
 
         if ($search = $request->string('q')->trim()->toString()) {
-            $query->having('first_name', 'like', "%{$search}%")
-                ->orHaving('last_name', 'like', "%{$search}%")
-                ->orHaving('email', 'like', "%{$search}%");
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
         }
 
         $customers = $query->paginate(15)->withQueryString();
 
-        return view('admin.customers.index', compact('customers'));
+        $guestOrderCount = Order::whereNull('user_id')->count();
+
+        return view('admin.customers.index', compact('customers', 'guestOrderCount'));
+    }
+
+    public function show(User $customer)
+    {
+        $customer->load(['orders' => fn ($q) => $q->latest()]);
+
+        return view('admin.customers.show', compact('customer'));
     }
 }

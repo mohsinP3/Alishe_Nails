@@ -13,20 +13,30 @@
 
     <div class="dashboard-grid">
         <div class="admin-card">
-            <div class="admin-card__head"><h3>Store Contact Info</h3></div>
+            <div class="admin-card__head"><h3>Store &amp; Payment Configuration</h3></div>
             <p style="font-size:.85rem;color:rgba(43,29,29,.65);margin-bottom:16px;">
-                These values come from your <code>.env</code> file
-                (<code>WHATSAPP_NUMBER</code> / <code>INSTAGRAM_HANDLE</code>) and are shown here
-                read-only. Edit <code>.env</code> directly to change them.
+                These values come from your <code>.env</code> file (e.g. <code>BANK_NAME</code>, <code>JAZZCASH_NUMBER</code>, <code>WHATSAPP_NUMBER</code>). Edit your <code>.env</code> file directly to update them.
             </p>
 
-            <div class="form-field" style="margin-bottom:14px;">
+            <div class="form-field" style="margin-bottom:12px;">
                 <label>WhatsApp Number</label>
                 <input type="text" value="{{ config('services.whatsapp.number') }}" disabled>
             </div>
-            <div class="form-field">
+            <div class="form-field" style="margin-bottom:12px;">
                 <label>Instagram Handle</label>
                 <input type="text" value="{{ '@'.config('services.instagram.handle') }}" disabled>
+            </div>
+            <div class="form-field" style="margin-bottom:12px;">
+                <label>Bank Account ({{ config('services.payment.bank_name') }})</label>
+                <input type="text" value="{{ config('services.payment.bank_account_title') }} &middot; {{ config('services.payment.bank_account_number') }}" disabled>
+            </div>
+            <div class="form-field" style="margin-bottom:12px;">
+                <label>JazzCash Account</label>
+                <input type="text" value="{{ config('services.payment.jazzcash_account_title') }} &middot; {{ config('services.payment.jazzcash_number') }}" disabled>
+            </div>
+            <div class="form-field">
+                <label>EasyPaisa Account</label>
+                <input type="text" value="{{ config('services.payment.easypaisa_account_title') }} &middot; {{ config('services.payment.easypaisa_number') }}" disabled>
             </div>
         </div>
 

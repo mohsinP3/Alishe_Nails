@@ -33,11 +33,36 @@ class AdminAnalyticsController extends Controller
 
         $averageOrderValue = Order::count() > 0 ? Order::avg('total') : 0;
 
+        // Instagram Analytics Integration
+        $token = config('services.instagram.access_token');
+        $businessId = config('services.instagram.business_account_id');
+        $instagramHandle = config('services.instagram.handle', 'alishe_nails');
+        $instagramData = null;
+        $instagramConnected = false;
+
+        if ($token && $businessId) {
+            try {
+                $response = \Illuminate\Support\Facades\Http::get("https://graph.facebook.com/v19.0/{$businessId}", [
+                    'fields' => 'name,username,profile_picture_url,followers_count,follows_count,media_count,media{id,caption,media_type,media_url,permalink,like_count,comments_count,timestamp}',
+                    'access_token' => $token,
+                ]);
+                if ($response->successful()) {
+                    $instagramData = $response->json();
+                    $instagramConnected = true;
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Instagram API fetch error: '.$e->getMessage());
+            }
+        }
+
         return view('admin.analytics.index', compact(
             'revenueByDay',
             'ordersByStatus',
             'topProducts',
-            'averageOrderValue'
+            'averageOrderValue',
+            'instagramData',
+            'instagramConnected',
+            'instagramHandle'
         ));
     }
 }
