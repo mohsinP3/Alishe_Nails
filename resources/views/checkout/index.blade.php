@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 @section('title', 'Checkout — Alishe Nails')
 
 @section('content')
@@ -55,8 +54,20 @@
 
                             <div class="form-field">
                                 <label for="city">City</label>
-                                <input type="text" id="city" name="city" placeholder="Karachi" value="{{ old('city') }}" required>
+                                <input type="text" id="city" name="city" placeholder="Karachi" value="{{ old('city', 'Karachi') }}" required>
                                 @error('city') <div class="error">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="form-field">
+                                <label for="area">Area</label>
+                                <input type="text" id="area" name="area" placeholder="e.g. DHA, Gulshan" value="{{ old('area') }}">
+                                @error('area') <div class="error">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="form-field">
+                                <label for="postal_code">Postal Code <span style="font-weight:400;opacity:.65;">(Optional)</span></label>
+                                <input type="text" id="postal_code" name="postal_code" placeholder="e.g. 75500" value="{{ old('postal_code') }}">
+                                @error('postal_code') <div class="error">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="form-field">
@@ -71,9 +82,10 @@
                     <div class="checkout-card">
                         <h3><i class="fa-regular fa-credit-card"></i> Payment Method</h3>
 
-                        <label class="payment-option is-selected">
+                        @php($selectedPayment = old('payment_method', 'cod'))
+                        <label class="payment-option {{ $selectedPayment === 'cod' ? 'is-selected' : '' }}">
                             <div class="payment-option__left">
-                                <input type="radio" name="payment_method" value="cod" checked>
+                                <input type="radio" name="payment_method" value="cod" {{ $selectedPayment === 'cod' ? 'checked' : '' }}>
                                 <div>
                                     <strong>Cash on Delivery</strong>
                                     <small>Pay when your order arrives.</small>
@@ -82,9 +94,9 @@
                             <i class="fa-solid fa-truck"></i>
                         </label>
 
-                        <label class="payment-option">
+                        <label class="payment-option {{ $selectedPayment === 'bank_transfer' ? 'is-selected' : '' }}">
                             <div class="payment-option__left">
-                                <input type="radio" name="payment_method" value="bank_transfer">
+                                <input type="radio" name="payment_method" value="bank_transfer" {{ $selectedPayment === 'bank_transfer' ? 'checked' : '' }}>
                                 <div>
                                     <strong>Bank Transfer</strong>
                                     <small>Direct transfer to our account.</small>
@@ -93,9 +105,9 @@
                             <i class="fa-solid fa-building-columns"></i>
                         </label>
 
-                        <label class="payment-option">
+                        <label class="payment-option {{ $selectedPayment === 'jazzcash_easypaisa' ? 'is-selected' : '' }}">
                             <div class="payment-option__left">
-                                <input type="radio" name="payment_method" value="jazzcash_easypaisa">
+                                <input type="radio" name="payment_method" value="jazzcash_easypaisa" {{ $selectedPayment === 'jazzcash_easypaisa' ? 'checked' : '' }}>
                                 <div>
                                     <strong>JazzCash / EasyPaisa</strong>
                                     <small>Mobile wallet transfer.</small>
@@ -105,6 +117,12 @@
                         </label>
 
                         @error('payment_method') <div class="error">{{ $message }}</div> @enderror
+
+                        <div class="form-field" data-transaction-reference style="display:none;margin-top:16px;">
+                            <label for="transaction_reference">Transaction Reference / Screenshot ID</label>
+                            <input type="text" id="transaction_reference" name="transaction_reference" value="{{ old('transaction_reference') }}" placeholder="Enter your transfer reference">
+                            @error('transaction_reference') <div class="error">{{ $message }}</div> @enderror
+                        </div>
                     </div>
                 </div>
 
@@ -140,10 +158,10 @@
                         </div>
                         <div class="summary-row">
                             <span>Shipping</span>
-                            <span>{{ $shipping == 0 ? 'Free' : 'PKR '.number_format($shipping, 0) }}</span>
+                            <span id="checkout-shipping-amount">{{ $shipping == 0 ? 'Free' : 'PKR '.number_format($shipping, 0) }}</span>
                         </div>
                         <div class="summary-row total">
-                            <span>Total</span><span>PKR {{ number_format($total, 0) }}</span>
+                            <span>Total</span><span id="checkout-total-amount">PKR {{ number_format($total, 0) }}</span>
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-block" style="margin-top:20px;">
@@ -163,7 +181,7 @@
                             <i class="fa-solid fa-award"></i>
                             <div>
                                 <strong>Satisfaction Guarantee</strong>
-                                <small>7-day exchange on unworn sets.</small>
+                                <small>Careful quality check before dispatch.</small>
                             </div>
                         </div>
                     </div>

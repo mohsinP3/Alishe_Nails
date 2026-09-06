@@ -71,8 +71,53 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       option.classList.add('is-selected');
       option.querySelector('input[type=radio]').checked = true;
+      updateTransactionReferenceField();
     });
   });
+
+  // ---------- Checkout shipping and payment details ----------
+  var checkoutCity = document.querySelector('#city');
+  var checkoutArea = document.querySelector('#area');
+  var shippingAmount = document.querySelector('#checkout-shipping-amount');
+  var totalAmount = document.querySelector('#checkout-total-amount');
+
+  function updateTransactionReferenceField() {
+    var referenceContainer = document.querySelector('[data-transaction-reference]');
+    var referenceInput = document.querySelector('#transaction_reference');
+    var selectedPayment = document.querySelector('input[name="payment_method"]:checked');
+    var needsReference = selectedPayment && selectedPayment.value !== 'cod';
+
+    if (!referenceContainer || !referenceInput) return;
+    referenceContainer.style.display = needsReference ? 'block' : 'none';
+    referenceInput.disabled = !needsReference;
+  }
+
+  function updateCheckoutShipping() {
+    if (!checkoutCity || !checkoutArea || !shippingAmount || !totalAmount) return;
+
+    var params = new URLSearchParams({
+      city: checkoutCity.value,
+      area: checkoutArea.value,
+    });
+
+    fetch('/checkout/shipping-fee?' + params.toString(), {
+      headers: { 'Accept': 'application/json' },
+    })
+      .then(function (response) { return response.json(); })
+      .then(function (data) {
+        shippingAmount.textContent = data.shipping == 0 ? 'Free' : 'PKR ' + Number(data.shipping).toLocaleString();
+        totalAmount.textContent = 'PKR ' + Number(data.total).toLocaleString();
+      })
+      .catch(function () {
+        // Keep the server-rendered amounts if the live estimate is unavailable.
+      });
+  }
+
+  if (checkoutCity && checkoutArea) {
+    checkoutCity.addEventListener('change', updateCheckoutShipping);
+    checkoutArea.addEventListener('change', updateCheckoutShipping);
+  }
+  updateTransactionReferenceField();
 
   // ---------- Accordion chevrons on product page ----------
   document.querySelectorAll('.accordion-item').forEach(function (item) {

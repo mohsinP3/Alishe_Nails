@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 @section('title', 'Your Cart — Alishe Nails')
 
 @section('content')
@@ -24,7 +23,7 @@
                     @foreach ($items as $rowId => $item)
                         <div class="cart-item">
                             <div class="cart-item__image">
-                                @php($url = $item['image'] ? asset('images/products/'.$item['image']) : null)
+                                @php($url = $item['image'] && file_exists(public_path('images/products/'.$item['image'])) ? asset('images/products/'.$item['image']) : null)
                                 @if ($url)
                                     <img src="{{ $url }}" alt="{{ $item['name'] }}">
                                 @else
@@ -71,9 +70,9 @@
                     <div class="summary-row"><span>Subtotal</span><span>PKR {{ number_format($subtotal, 0) }}</span></div>
                     <div class="summary-row">
                         <span>Shipping</span>
-                        <span>{{ $shipping == 0 ? 'Free' : 'PKR '.number_format($shipping, 0) }}</span>
+                        <span style="font-size:.85rem;text-align:right;">At checkout</span>
                     </div>
-                    <div class="summary-row total"><span>Total</span><span>PKR {{ number_format($total, 0) }}</span></div>
+                    <p style="font-size:.8rem;color:rgba(43,29,29,.65);margin:12px 0 0;">Delivery is calculated in PKR after you enter your Pakistan city and optional area.</p>
 
                     <a href="{{ route('checkout.index') }}" class="btn btn-primary btn-block" style="margin-top:20px;">Proceed to Checkout</a>
                 </div>

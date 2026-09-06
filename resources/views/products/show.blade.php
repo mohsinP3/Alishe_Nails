@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 @section('title', $product->name.' — Alishe Nails')
 
 @section('content')
@@ -84,7 +83,7 @@
                     <div class="option-group" data-option-group>
                         <div class="option-group__head">
                             <h6>Size</h6>
-                            <a href="#">Sizing Guide</a>
+                            <a href="{{ route('how-to-apply.index') }}">Sizing Guide</a>
                         </div>
                         <div class="option-pills">
                             @foreach (['XS', 'S', 'M', 'L', 'Custom'] as $i => $size)
@@ -142,7 +141,8 @@
                     <ul>
                         <li><i class="fa-solid fa-check"></i> Free delivery on orders over PKR 5,000.</li>
                         <li><i class="fa-solid fa-check"></i> Dispatched within 1–3 business days.</li>
-                        <li><i class="fa-solid fa-check"></i> Unworn sets may be exchanged within 7 days.</li>
+                        <li><i class="fa-solid fa-check"></i> Orders are not returnable, exchangeable, or refundable once placed.</li>
+                        <li><a href="{{ route('policies.index') }}" style="text-decoration:underline;">Read our full Returns &amp; Privacy Policy</a></li>
                     </ul>
                 </details>
             </div>

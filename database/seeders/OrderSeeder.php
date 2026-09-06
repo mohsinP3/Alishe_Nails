@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ShippingRate;
 use Illuminate\Database\Seeder;
 
 class OrderSeeder extends Seeder
@@ -25,7 +26,7 @@ class OrderSeeder extends Seeder
         ];
 
         $paymentMethods = ['cod', 'bank_transfer', 'jazzcash_easypaisa'];
-        $statuses = ['pending', 'processing', 'completed'];
+        $statuses = ['pending', 'processing', 'shipped', 'delivered', 'confirmed'];
         $products = Product::all();
 
         if ($products->isEmpty()) {
@@ -64,7 +65,7 @@ class OrderSeeder extends Seeder
                 ]);
             }
 
-            $shipping = $subtotal >= 5000 ? 0 : 200;
+            $shipping = ShippingRate::calculateFee($customer['city'], null, $subtotal)['fee'];
 
             $order->update([
                 'subtotal' => $subtotal,

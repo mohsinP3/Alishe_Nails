@@ -18,4 +18,13 @@ class ExampleTest extends TestCase
 
         $response->assertStatus(200);
     }
+
+    public function test_policies_page_displays_returns_and_privacy_sections(): void
+    {
+        $response = $this->get(route('policies.index'));
+
+        $response->assertOk()
+            ->assertSee('No Returns or Exchanges')
+            ->assertSee('Privacy Policy');
+    }
 }

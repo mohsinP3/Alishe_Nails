@@ -35,12 +35,14 @@ class Order extends Model
         'total',
         'status',
         'payment_status',
+        'stock_restored_at',
     ];
 
     protected $casts = [
         'subtotal' => 'decimal:2',
         'shipping' => 'decimal:2',
         'total' => 'decimal:2',
+        'stock_restored_at' => 'datetime',
     ];
 
     protected static function booted(): void

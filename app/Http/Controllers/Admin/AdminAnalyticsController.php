@@ -17,7 +17,7 @@ class AdminAnalyticsController extends Controller
         $revenueByDay = $days->map(function (Carbon $day) {
             return [
                 'label' => $day->format('D'),
-                'total' => (float) Order::whereDate('created_at', $day)->sum('total'),
+                'total' => (float) Order::whereDate('created_at', $day)->where('status', '!=', 'cancelled')->sum('total'),
             ];
         });
 
@@ -26,12 +26,14 @@ class AdminAnalyticsController extends Controller
             ->pluck('total', 'status');
 
         $topProducts = OrderItem::selectRaw('product_name, SUM(quantity) as units_sold, SUM(line_total) as revenue')
+            ->whereHas('order', fn ($query) => $query->where('status', '!=', 'cancelled'))
             ->groupBy('product_name')
             ->orderByDesc('units_sold')
             ->take(5)
             ->get();
 
-        $averageOrderValue = Order::count() > 0 ? Order::avg('total') : 0;
+        $activeOrders = Order::where('status', '!=', 'cancelled');
+        $averageOrderValue = (clone $activeOrders)->count() > 0 ? $activeOrders->avg('total') : 0;
 
         // Instagram Analytics Integration
         $token = config('services.instagram.access_token');

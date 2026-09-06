@@ -18,7 +18,7 @@ class AdminDashboardController extends Controller
     public function index()
     {
         $totalOrders = Order::count();
-        $totalSales = Order::sum('total');
+        $totalSales = Order::where('status', '!=', 'cancelled')->sum('total');
         $activeCustomers = Order::distinct('email')->count('email');
         $lowStockProducts = Product::where('stock', '<=', self::LOW_STOCK_THRESHOLD)->get();
 
@@ -26,12 +26,13 @@ class AdminDashboardController extends Controller
 
         // "Top Performing" = products with the most units sold across all orders.
         $topPerforming = OrderItem::selectRaw('product_name, SUM(quantity) as units_sold')
+            ->whereHas('order', fn ($query) => $query->where('status', '!=', 'cancelled'))
             ->groupBy('product_name')
             ->orderByDesc('units_sold')
             ->take(3)
             ->get();
 
-        $totalUnitsSold = OrderItem::sum('quantity');
+        $totalUnitsSold = OrderItem::whereHas('order', fn ($query) => $query->where('status', '!=', 'cancelled'))->sum('quantity');
 
         $lowStockCount = $lowStockProducts->count();
 

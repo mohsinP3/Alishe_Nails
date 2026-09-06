@@ -15,8 +15,6 @@ class CartController extends Controller
         return view('cart.index', [
             'items' => $items,
             'subtotal' => Cart::subtotal(),
-            'shipping' => Cart::shipping(),
-            'total' => Cart::total(),
         ]);
     }
 

@@ -1,5 +1,4 @@
 @extends('layouts.admin')
-
 @section('title', ($product->exists ? 'Edit' : 'Add').' Product — Alishe Nails Admin')
 
 @section('content')

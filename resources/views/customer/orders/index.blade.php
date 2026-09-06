@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 @section('title', 'My Orders — Alishe Nails')
 
 @section('content')
@@ -33,7 +32,7 @@
                                 <td>#{{ $order->order_number }}</td>
                                 <td>{{ $order->created_at->format('M j, Y') }}</td>
                                 <td>PKR {{ number_format($order->total, 0) }}</td>
-                                <td><span class="status-pill status-{{ $order->status }}">{{ ucfirst($order->status) }}</span></td>
+                                <td><span class="status-pill status-{{ $order->status }}">{{ ucwords(str_replace('_', ' ', $order->status)) }}</span></td>
                                 <td><a href="{{ route('account.orders.show', $order) }}" class="btn btn-outline btn-sm">View</a></td>
                             </tr>
                         @endforeach

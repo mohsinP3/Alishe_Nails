@@ -24,6 +24,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\HowToApplyController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PolicyController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ShopController;
 use Illuminate\Support\Facades\Route;
@@ -58,6 +59,7 @@ Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])-
 
 Route::get('/about', [AboutController::class, 'index'])->name('about.index');
 Route::get('/how-to-apply', [HowToApplyController::class, 'index'])->name('how-to-apply.index');
+Route::get('/policies', [PolicyController::class, 'index'])->name('policies.index');
 
 Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
 Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:5,1')->name('contact.store');

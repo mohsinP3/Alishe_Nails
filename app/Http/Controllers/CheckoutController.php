@@ -8,6 +8,7 @@ use App\Mail\OrderConfirmationMail;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ShippingRate;
 use App\Support\Cart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -24,11 +25,18 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
         }
 
+        $subtotal = Cart::subtotal();
+        $shipping = ShippingRate::calculateFee(
+            old('city', 'Karachi'),
+            old('area'),
+            $subtotal
+        )['fee'];
+
         return view('checkout.index', [
             'items' => Cart::content(),
-            'subtotal' => Cart::subtotal(),
-            'shipping' => Cart::shipping(),
-            'total' => Cart::total(),
+            'subtotal' => $subtotal,
+            'shipping' => $shipping,
+            'total' => $subtotal + $shipping,
             'user' => $request->user(),
         ]);
     }
@@ -39,7 +47,7 @@ class CheckoutController extends Controller
         $area = $request->string('area')->trim()->toString() ?: null;
         $subtotal = Cart::subtotal();
 
-        $res = \App\Models\ShippingRate::calculateFee($city, $area, $subtotal);
+        $res = ShippingRate::calculateFee($city, $area, $subtotal);
         $total = $subtotal + $res['fee'];
 
         return response()->json([
@@ -116,7 +124,7 @@ class CheckoutController extends Controller
                     $product->decrement('stock', $row['qty']);
                 }
 
-                $shippingRes = \App\Models\ShippingRate::calculateFee(
+                $shippingRes = ShippingRate::calculateFee(
                     $validated['city'],
                     $validated['area'] ?? null,
                     $subtotal

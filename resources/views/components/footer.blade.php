@@ -7,8 +7,8 @@
             </a>
             <p>Exquisite handmade press-on nails crafted for elegance and ease.</p>
             <div class="footer-social">
-                <i class="fa-brands fa-instagram"></i>
                 <a href="https://instagram.com/{{ config('services.instagram.handle', 'alishe_nails') }}" target="_blank" rel="noopener">
+                    <i class="fa-brands fa-instagram"></i>
                     {{ '@'.config('services.instagram.handle', 'alishe_nails') }}
                 </a>
             </div>
@@ -20,7 +20,7 @@
                 <li><a href="{{ route('shop.index') }}">New Arrivals</a></li>
                 <li><a href="{{ route('shop.index') }}">Best Sellers</a></li>
                 <li><a href="{{ route('shop.index') }}">Nail Care Sets</a></li>
-                <li><a href="{{ route('shop.index') }}">Gift Cards</a></li>
+                <li><a href="{{ route('shop.index') }}">Gift Ideas</a></li>
             </ul>
         </div>
 
@@ -28,9 +28,9 @@
             <h5>Help</h5>
             <ul>
                 <li><a href="{{ route('contact.index') }}">FAQs</a></li>
-                <li><a href="{{ route('contact.index') }}">Shipping &amp; Returns</a></li>
+                <li><a href="{{ route('policies.index') }}">Shipping &amp; Returns</a></li>
                 <li><a href="{{ route('how-to-apply.index') }}">Sizing Guide</a></li>
-                <li><a href="{{ route('contact.index') }}">Track Order</a></li>
+                <li><a href="{{ route('contact.index') }}">Order Help</a></li>
             </ul>
         </div>
 

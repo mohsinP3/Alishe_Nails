@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/jpeg" href="{{ asset('images/logo.jpeg') }}">
     <title>@yield('title', 'Alishe Nails — Timeless Nails, Made for You')</title>
     <meta name="description" content="@yield('meta_description', 'Luxury handmade press-on nails for every occasion. Shop the Alishe Nails collection.')">
     <meta name="csrf-token" content="{{ csrf_token() }}">

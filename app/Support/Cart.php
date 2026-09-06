@@ -129,20 +129,4 @@ class Cart
         return collect(self::content())->sum(fn ($row) => $row['price'] * $row['qty']);
     }
 
-    public static function shipping(): float
-    {
-        $subtotal = self::subtotal();
-
-        if ($subtotal <= 0) {
-            return 0;
-        }
-
-        // Free delivery above the announcement-bar threshold, flat rate below it.
-        return $subtotal >= 5000 ? 0 : 200;
-    }
-
-    public static function total(): float
-    {
-        return self::subtotal() + self::shipping();
-    }
 }

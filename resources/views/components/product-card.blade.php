@@ -1,5 +1,4 @@
 @props(['product'])
-
 <div class="product-card">
     <a href="{{ route('products.show', $product) }}" class="product-card__image" style="display:block;">
         @if ($product->isOutOfStock())

@@ -7,21 +7,24 @@
 
     {{-- ---------- Hero ---------- --}}
     <section class="hero">
-        <div class="container hero__grid">
-            <div>
-                <h1>Timeless Nails,<br><span class="italic-accent">Made for You</span></h1>
-                <p class="lead">Luxury Press-On Nails For Every Occasion</p>
-                <a href="{{ route('shop.index') }}" class="btn btn-primary">Shop Now</a>
-            </div>
-            <div class="hero__image">
-                @if (file_exists(public_path('images/hero/hero-box.jpg')))
-                    <img src="{{ asset('images/hero/hero-box.jpg') }}" alt="Alishe Nails gift box">
-                @else
-                    <div class="img-placeholder">Image missing: images/hero/hero-box.jpg</div>
-                @endif
-            </div>
+    <div class="container hero__grid">
+        <div>
+            <h1>Timeless Nails,<br><span class="italic-accent">Made for You</span></h1>
+            <p class="lead">Luxury Press-On Nails For Every Occasion</p>
+            <a href="{{ route('shop.index') }}" class="btn btn-primary">Shop Now</a>
         </div>
-    </section>
+        <div class="hero__image">
+            @if (file_exists(public_path('vedios/headervedio.mp4')))
+    <video autoplay loop muted playsinline style="width:100%; max-height:500px; object-fit:contain;">
+        <source src="{{ asset('vedios/headervedio.mp4') }}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+@else
+    <div class="img-placeholder">Video missing: vedios/headervedio.mp4</div>
+@endif
+        </div>
+    </div>
+</section>
 
     {{-- ---------- Value props ---------- --}}
     <div class="container">

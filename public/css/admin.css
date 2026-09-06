@@ -126,9 +126,13 @@
 .status-pill { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: .74rem; font-weight: 600; }
 .status-pending { background: #FBEBB5; color: #8A6D00; }
 .status-processing { background: #D6E4F6; color: #1F4E8C; }
+.status-confirmed { background: #E6EDF9; color: #3A5B8C; }
 .status-completed, .status-delivered { background: #DCEBDC; color: #2F7D3F; }
 .status-shipped { background: #F6D6DC; color: #a0475a; }
+.status-out_for_delivery { background: #EDE4F6; color: #6a3a9e; }
 .status-cancelled { background: #F7D6D6; color: #a12a2a; }
+.status-paid { background: #DCEBDC; color: #2F7D3F; }
+.status-failed { background: #F7D6D6; color: #a12a2a; }
 
 /* ---------- Top performing list ---------- */
 .top-performing__total { text-align: center; padding: 20px 0; }

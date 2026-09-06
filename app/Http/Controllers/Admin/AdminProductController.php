@@ -38,7 +38,7 @@ class AdminProductController extends Controller
     {
         $validated = $request->validated();
 
-        $validated['slug'] = Str::slug($validated['name']);
+        $validated['slug'] = $this->uniqueSlug($validated['name']);
         $validated['sku'] = 'ALN-'.strtoupper(Str::random(6));
         $validated['is_best_seller'] = $request->boolean('is_best_seller');
         $validated['is_featured'] = $request->boolean('is_featured');
@@ -63,7 +63,7 @@ class AdminProductController extends Controller
     public function update(ProductRequest $request, Product $product)
     {
         $validated = $request->validated();
-        $validated['slug'] = Str::slug($validated['name']);
+        $validated['slug'] = $this->uniqueSlug($validated['name'], $product);
         $validated['is_best_seller'] = $request->boolean('is_best_seller');
         $validated['is_featured'] = $request->boolean('is_featured');
         $validated['is_active'] = $request->boolean('is_active');
@@ -101,5 +101,20 @@ class AdminProductController extends Controller
         $file->move(public_path('images/products'), $filename);
 
         return $filename;
+    }
+
+    private function uniqueSlug(string $name, ?Product $ignore = null): string
+    {
+        $baseSlug = Str::slug($name) ?: 'product';
+        $slug = $baseSlug;
+        $suffix = 2;
+
+        while (Product::where('slug', $slug)
+            ->when($ignore, fn ($query) => $query->where('id', '!=', $ignore->id))
+            ->exists()) {
+            $slug = $baseSlug.'-'.$suffix++;
+        }
+
+        return $slug;
     }
 }

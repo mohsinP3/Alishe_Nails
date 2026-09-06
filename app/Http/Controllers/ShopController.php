@@ -15,14 +15,14 @@ class ShopController extends Controller
             $query->where('name', 'like', "%{$search}%");
         }
 
-        if ($category = $request->string('category')->trim()->toString()) {
-            $query->whereHas('category', function ($q) use ($category) {
-                $q->where('slug', $category)->orWhere('id', $category);
-            });
-        } elseif ($categoriesParam = $request->array('category')) {
-            $query->whereHas('category', function ($q) use ($categoriesParam) {
-                $q->whereIn('slug', $categoriesParam)->orWhereIn('id', $categoriesParam);
-            });
+        if ($categories = $request->input('category')) {
+            $categories = (array) $categories;
+
+            if (count($categories) > 0) {
+                $query->whereHas('category', function ($q) use ($categories) {
+                    $q->whereIn('slug', $categories)->orWhereIn('id', $categories);
+                });
+            }
         }
 
         if ($shapes = $request->array('shape')) {

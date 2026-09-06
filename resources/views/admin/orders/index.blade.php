@@ -1,5 +1,4 @@
 @extends('layouts.admin')
-
 @section('title', 'Orders — Alishe Nails Admin')
 
 @section('content')
@@ -16,8 +15,8 @@
             <input class="input-search" type="text" name="q" value="{{ request('q') }}" placeholder="Search order #, name, email...">
             <select class="select-sort" name="status" onchange="this.form.requestSubmit()">
                 <option value="">All Statuses</option>
-                @foreach (['pending', 'processing', 'completed', 'cancelled'] as $status)
-                    <option value="{{ $status }}" {{ request('status') == $status ? 'selected' : '' }}>{{ ucfirst($status) }}</option>
+                @foreach (\App\Models\Order::STATUSES as $status)
+                    <option value="{{ $status }}" {{ request('status') == $status ? 'selected' : '' }}>{{ ucwords(str_replace('_', ' ', $status)) }}</option>
                 @endforeach
             </select>
             <button type="submit" class="btn btn-outline btn-sm">Filter</button>
@@ -46,7 +45,7 @@
                         <td>{{ $order->created_at->format('M j, Y') }}</td>
                         <td style="text-transform:capitalize;">{{ str_replace('_', ' ', $order->payment_method) }}</td>
                         <td>PKR {{ number_format($order->total, 0) }}</td>
-                        <td><span class="status-pill status-{{ $order->status }}">{{ ucfirst($order->status) }}</span></td>
+                        <td><span class="status-pill status-{{ $order->status }}">{{ ucwords(str_replace('_', ' ', $order->status)) }}</span></td>
                         <td><a href="{{ route('admin.orders.show', $order) }}" class="btn btn-outline btn-sm">View</a></td>
                     </tr>
                 @empty

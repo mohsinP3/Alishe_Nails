@@ -1,5 +1,4 @@
 @extends('layouts.admin')
-
 @section('title', 'Settings — Alishe Nails Admin')
 
 @section('content')

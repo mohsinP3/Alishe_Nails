@@ -1,5 +1,4 @@
 @extends('layouts.admin')
-
 @section('title', ($category->exists ? 'Edit' : 'Add').' Category — Alishe Nails Admin')
 
 @section('content')

@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 @section('title', 'Forgot Password — Alishe Nails')
 
 @section('content')

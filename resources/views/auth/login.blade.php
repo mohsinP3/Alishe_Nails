@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 @section('title', 'Log In — Alishe Nails')
 
 @section('content')

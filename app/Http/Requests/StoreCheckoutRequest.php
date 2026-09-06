@@ -23,7 +23,7 @@ class StoreCheckoutRequest extends FormRequest
             'area' => ['nullable', 'string', 'max:150'],
             'postal_code' => ['nullable', 'string', 'max:20'],
             'payment_method' => ['required', 'in:cod,bank_transfer,jazzcash_easypaisa'],
-            'transaction_reference' => ['nullable', 'string', 'max:100'],
+            'transaction_reference' => ['nullable', 'required_unless:payment_method,cod', 'string', 'max:100'],
         ];
     }
 }

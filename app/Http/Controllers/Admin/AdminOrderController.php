@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\ValidationException;
 
 class AdminOrderController extends Controller
 {
@@ -51,16 +52,33 @@ class AdminOrderController extends Controller
         $previousStatus = $order->status;
 
         DB::transaction(function () use ($order, $validated, $previousStatus) {
-            // Restore stock if an order that had already reserved it gets cancelled.
-            if ($validated['status'] === 'cancelled' && $previousStatus !== 'cancelled') {
+            $newStatus = $validated['status'];
+
+            // Track restoration so cancelling/reopening remains idempotent.
+            if ($newStatus === 'cancelled' && $previousStatus !== 'cancelled' && ! $order->stock_restored_at) {
                 foreach ($order->items as $item) {
                     if ($item->product_id) {
                         $item->product()->lockForUpdate()->first()?->increment('stock', $item->quantity);
                     }
                 }
+                $order->stock_restored_at = now();
+            } elseif ($previousStatus === 'cancelled' && $newStatus !== 'cancelled' && $order->stock_restored_at) {
+                foreach ($order->items as $item) {
+                    $product = $item->product()->lockForUpdate()->first();
+
+                    if (! $product || $product->stock < $item->quantity) {
+                        throw ValidationException::withMessages([
+                            'status' => 'This order cannot be reopened because there is not enough stock available.',
+                        ]);
+                    }
+
+                    $product->decrement('stock', $item->quantity);
+                }
+                $order->stock_restored_at = null;
             }
 
-            $order->update(['status' => $validated['status']]);
+            $order->status = $newStatus;
+            $order->save();
         });
 
         if ($validated['status'] !== $previousStatus) {

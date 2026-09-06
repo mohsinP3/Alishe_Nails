@@ -1,5 +1,4 @@
 @extends('layouts.admin')
-
 @section('title', 'Order #'.$order->order_number.' — Alishe Nails Admin')
 
 @section('content')
@@ -52,17 +51,54 @@
                 <p style="margin:0 0 6px;font-size:.85rem;"><i class="fa-solid fa-envelope"></i> {{ $order->email }}</p>
                 <p style="margin:0 0 6px;font-size:.85rem;"><i class="fa-solid fa-phone"></i> {{ $order->phone }}</p>
                 <p style="margin:0;font-size:.85rem;"><i class="fa-solid fa-location-dot"></i> {{ $order->address }}, {{ $order->city }}</p>
+                @if ($order->area)
+                    <p style="margin:6px 0 0;font-size:.85rem;"><i class="fa-solid fa-map-pin"></i> Area: {{ $order->area }}</p>
+                @endif
+                @if ($order->postal_code)
+                    <p style="margin:6px 0 0;font-size:.85rem;"><i class="fa-solid fa-envelope-open-text"></i> Postal Code: {{ $order->postal_code }}</p>
+                @endif
+                @if ($order->transaction_reference)
+                    <p style="margin:6px 0 0;font-size:.85rem;"><i class="fa-solid fa-receipt"></i> Transaction Reference: {{ $order->transaction_reference }}</p>
+                @endif
             </div>
 
             <div class="admin-card">
-                <div class="admin-card__head"><h3>Update Status</h3></div>
+                <div class="admin-card__head"><h3>Payment</h3></div>
+                <p style="margin:0 0 6px;font-size:.85rem;text-transform:capitalize;">
+                    <i class="fa-solid fa-credit-card"></i> {{ str_replace('_', ' ', $order->payment_method) }}
+                </p>
+                <p style="margin:0 0 16px;font-size:.85rem;">
+                    <i class="fa-solid fa-circle-info"></i> Payment status:
+                    <span class="status-pill status-{{ $order->payment_status }}">{{ ucfirst($order->payment_status) }}</span>
+                </p>
+
+                <form action="{{ route('admin.orders.updatePaymentStatus', $order) }}" method="POST">
+                    @csrf
+                    @method('PATCH')
+                    <div class="form-field" style="margin-bottom:14px;">
+                        <select name="payment_status" class="select-sort" style="width:100%;">
+                            @foreach (\App\Models\Order::PAYMENT_STATUSES as $paymentStatus)
+                                <option value="{{ $paymentStatus }}" {{ $order->payment_status === $paymentStatus ? 'selected' : '' }}>
+                                    {{ ucfirst($paymentStatus) }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-outline btn-block">Update Payment Status</button>
+                </form>
+            </div>
+
+            <div class="admin-card">
+                <div class="admin-card__head"><h3>Update Order Status</h3></div>
                 <form action="{{ route('admin.orders.updateStatus', $order) }}" method="POST">
                     @csrf
                     @method('PATCH')
                     <div class="form-field" style="margin-bottom:14px;">
                         <select name="status" class="select-sort" style="width:100%;">
-                            @foreach (['pending', 'processing', 'completed', 'cancelled'] as $status)
-                                <option value="{{ $status }}" {{ $order->status === $status ? 'selected' : '' }}>{{ ucfirst($status) }}</option>
+                            @foreach (\App\Models\Order::STATUSES as $status)
+                                <option value="{{ $status }}" {{ $order->status === $status ? 'selected' : '' }}>
+                                    {{ ucwords(str_replace('_', ' ', $status)) }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -70,7 +106,7 @@
                 </form>
 
                 <p style="font-size:.8rem;color:rgba(43,29,29,.6);margin-top:14px;">
-                    Payment method: <strong style="text-transform:capitalize;">{{ str_replace('_', ' ', $order->payment_method) }}</strong>
+                    Changing the status to <strong>Cancelled</strong> automatically restores the reserved stock to inventory.
                 </p>
             </div>
         </div>

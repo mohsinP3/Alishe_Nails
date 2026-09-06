@@ -519,3 +519,57 @@ img { max-width: 100%; display: block; }
   .product-gallery { grid-template-columns: 1fr; }
   .product-gallery__thumbs { flex-direction: row; overflow-x: auto; }
 }
+.hero__image video {
+    width: 100%;
+    max-height: 500px;   /* jitni height chahiye, adjust kar lo */
+    object-fit: contain;   /* video crop ho ke fit hogi, stretch nahi hogi */
+}
+
+/* ==========================================================================
+   Shared tables / status pills (used on customer account pages & elsewhere)
+   ========================================================================== */
+.admin-card {
+  background: #fff;
+  border-radius: var(--radius-md);
+  padding: 24px;
+}
+.admin-card__head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.admin-card__head h3 { font-size: 1rem; margin: 0; }
+.admin-card__head a { font-size: .8rem; color: var(--rose-dark); font-weight: 600; }
+
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th {
+  text-align: left;
+  font-size: .68rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgba(43,29,29,.5);
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.data-table td {
+  padding: 12px 10px;
+  font-size: .86rem;
+  border-bottom: 1px solid var(--border-soft);
+  vertical-align: middle;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--ivory); }
+
+.table-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--blush); color: var(--rose-dark);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: .72rem; font-weight: 700; margin-right: 8px;
+}
+
+.status-pill { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: .74rem; font-weight: 600; }
+.status-pending { background: #FBEBB5; color: #8A6D00; }
+.status-processing { background: #D6E4F6; color: #1F4E8C; }
+.status-confirmed { background: #E6EDF9; color: #3A5B8C; }
+.status-completed, .status-delivered { background: #DCEBDC; color: #2F7D3F; }
+.status-shipped { background: #F6D6DC; color: #a0475a; }
+.status-out_for_delivery { background: #EDE4F6; color: #6a3a9e; }
+.status-cancelled { background: #F7D6D6; color: #a12a2a; }
+.status-paid { background: #DCEBDC; color: #2F7D3F; }
+.status-failed { background: #F7D6D6; color: #a12a2a; }

@@ -85,4 +85,49 @@ class ShopTest extends TestCase
 
         $response->assertStatus(404);
     }
+
+    public function test_shop_page_filters_by_multiple_categories_using_checkbox_array(): void
+    {
+        $category1 = Category::create(['name' => 'Soft Glam', 'slug' => 'soft-glam']);
+        $category2 = Category::create(['name' => 'Bold & Chic', 'slug' => 'bold-chic']);
+        $category3 = Category::create(['name' => 'Everyday Elegance', 'slug' => 'everyday-elegance']);
+
+        $product1 = Product::create([
+            'name' => 'Glam Set',
+            'category_id' => $category1->id,
+            'sku' => 'ALN-GLM-1',
+            'price' => 2500,
+            'stock' => 10,
+            'is_active' => true,
+            'slug' => 'glam-set',
+        ]);
+        $product2 = Product::create([
+            'name' => 'Bold Set',
+            'category_id' => $category2->id,
+            'sku' => 'ALN-BLD-1',
+            'price' => 2500,
+            'stock' => 10,
+            'is_active' => true,
+            'slug' => 'bold-set',
+        ]);
+        $product3 = Product::create([
+            'name' => 'Everyday Set',
+            'category_id' => $category3->id,
+            'sku' => 'ALN-EVR-1',
+            'price' => 2500,
+            'stock' => 10,
+            'is_active' => true,
+            'slug' => 'everyday-set',
+        ]);
+
+        // The filter sidebar posts checkbox arrays as category[]=...&category[]=...
+        $response = $this->get(route('shop.index', [
+            'category' => ['soft-glam', 'bold-chic'],
+        ]));
+
+        $response->assertStatus(200);
+        $response->assertSee($product1->name);
+        $response->assertSee($product2->name);
+        $response->assertDontSee($product3->name);
+    }
 }

@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 @section('title', 'Order #'.$order->order_number.' — Alishe Nails')
 
 @section('content')
@@ -12,7 +11,7 @@
 
         <h1 style="font-size:1.6rem;">Order #{{ $order->order_number }}</h1>
         <p style="color:rgba(43,29,29,.6);">Placed {{ $order->created_at->format('M j, Y') }} &middot;
-            <span class="status-pill status-{{ $order->status }}">{{ ucfirst($order->status) }}</span>
+            <span class="status-pill status-{{ $order->status }}">{{ ucwords(str_replace('_', ' ', $order->status)) }}</span>
         </p>
 
         <div class="summary-card" style="margin-top:20px;">
