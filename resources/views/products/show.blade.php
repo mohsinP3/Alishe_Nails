@@ -3,7 +3,7 @@
 @section('og_type', 'product')
 @section('og_title', $product->name.' — Alishe Nails')
 @section('og_description', $product->short_description ?: 'Shop '.$product->name.' from Alishe Nails.')
-@section('og_image', $product->image_url ?: asset('images/logo.jpeg'))
+@section('og_image', $product->cover_image_url ?: asset('images/logo.jpeg'))
 
 @section('content')
 
@@ -15,29 +15,44 @@
         </div>
 
         <div class="product-detail">
-            {{-- ---------- Gallery ---------- --}}
-            <div class="product-gallery">
-                <div class="product-gallery__thumbs">
-                    @forelse ($product->gallery_urls as $i => $url)
-                        <div class="product-gallery__thumb {{ $i === 0 ? 'is-active' : '' }}" data-gallery-thumb data-full-image="{{ $url }}">
-                            <img src="{{ $url }}" alt="{{ $product->name }} thumbnail {{ $i + 1 }}">
+            {{-- ---------- Media gallery (images + videos, ordered) ---------- --}}
+            <div class="product-gallery" data-media-gallery>
+                @php
+                    $mediaUrls = $product->media_urls;
+                @endphp
+
+                <div class="product-gallery__main" data-media-stage tabindex="0" role="button" aria-label="Zoom product media">
+                    @forelse ($mediaUrls as $i => $media)
+                        <div class="product-gallery__slide {{ $i === 0 ? 'is-active' : '' }}" data-media-slide data-index="{{ $i }}">
+                            @if ($media['type'] === 'video')
+                                <video src="{{ $media['url'] }}" controls muted loop playsinline preload="metadata"></video>
+                            @else
+                                <img src="{{ $media['url'] }}" alt="{{ $product->name }} media {{ $i + 1 }}" data-image-fallback>
+                            @endif
                         </div>
                     @empty
-                        <div class="product-gallery__thumb is-active">
-                            <div class="img-placeholder">No image</div>
+                        <div class="img-placeholder">
+                            Alishe Nails<br>Image unavailable
                         </div>
                     @endforelse
                 </div>
 
-                <div class="product-gallery__main" data-gallery-main tabindex="0" role="button" aria-label="Zoom product image">
-                    @if ($product->image_url)
-                        <img src="{{ $product->image_url }}" alt="{{ $product->name }}" data-image-fallback>
-                    @else
-                        <div class="img-placeholder">
-                            Alishe Nails<br>Image unavailable
-                        </div>
-                    @endif
-                </div>
+                {{-- One thumb per ACTUAL media item — never an empty slot --}}
+                @if (count($mediaUrls) > 1)
+                    <div class="product-gallery__thumbs">
+                        @foreach ($mediaUrls as $i => $media)
+                            <button type="button" class="product-gallery__thumb {{ $i === 0 ? 'is-active' : '' }}"
+                                    data-media-thumb data-index="{{ $i }}" aria-label="View media {{ $i + 1 }}">
+                                @if ($media['type'] === 'video')
+                                    <video src="{{ $media['url'] }}" muted preload="metadata"></video>
+                                    <span class="product-gallery__thumb-play"><i class="fa-solid fa-play"></i></span>
+                                @else
+                                    <img src="{{ $media['url'] }}" alt="{{ $product->name }} thumbnail {{ $i + 1 }}">
+                                @endif
+                            </button>
+                        @endforeach
+                    </div>
+                @endif
             </div>
 
             {{-- ---------- Info ---------- --}}
@@ -54,7 +69,28 @@
                 </div>
 
                 <h1>{{ $product->name }}</h1>
+                @if ($product->seller)
+                    <p class="seller-byline"><i class="fa-solid fa-sparkles"></i> Sold by {{ $product->seller->name }}@if($product->seller->instagram_handle) <span>{{ '@'.$product->seller->instagram_handle }}</span>@endif</p>
+                @endif
+                @php
+                    $saved = auth('web')->check() && auth('web')->user()->wishlist()->where('products.id', $product->id)->exists();
+                @endphp
+
                 <div class="product-info__price">PKR {{ number_format($product->price, 0) }}</div>
+
+                @auth('web')
+                    <form action="{{ route('account.wishlist.toggle', $product) }}" method="POST" style="margin-bottom:16px;">
+                        @csrf
+                        <button type="submit" class="btn btn-outline btn-sm" style="display:inline-flex;align-items:center;gap:8px;">
+                            <i class="{{ $saved ? 'fa-solid fa-heart' : 'fa-regular fa-heart' }}"></i>
+                            {{ $saved ? 'Saved to Wishlist' : 'Save to Wishlist' }}
+                        </button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}" class="btn btn-outline btn-sm" style="display:inline-flex;align-items:center;gap:8px;margin-bottom:16px;">
+                        <i class="fa-regular fa-heart"></i> Save to Wishlist
+                    </a>
+                @endauth
 
                 @if ($product->isOutOfStock())
                     <p style="color:#b3261e;font-weight:600;font-size:.9rem;"><i class="fa-solid fa-circle-exclamation"></i> Out of Stock</p>

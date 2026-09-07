@@ -166,6 +166,33 @@
                             <span>Shipping</span>
                             <span id="checkout-shipping-amount">{{ $shipping == 0 ? 'Free' : 'PKR '.number_format($shipping, 0) }}</span>
                         </div>
+
+                        <form action="{{ route('checkout.coupon.apply') }}" method="POST" style="margin-top:18px;">
+                            @csrf
+                            <label for="promo_code" style="display:block;font-weight:600;margin-bottom:8px;">Have a promo code?</label>
+                            <div style="display:flex;gap:8px;">
+                                <input id="promo_code" name="code" value="{{ old('code', session('applied_coupon.code')) }}" placeholder="Enter code" style="flex:1;">
+                                <button type="submit" class="btn btn-outline btn-sm">Apply</button>
+                            </div>
+                            @if ($coupon)
+                                <div style="margin-top:8px;font-size:.82rem;color:var(--rose-dark);">Applied: <strong>{{ $coupon->code }}</strong> ({{ $coupon->type === 'fixed' ? 'PKR '.number_format($coupon->value, 0) : $coupon->value.'%' }})</div>
+                            @endif
+                        </form>
+
+                        @if ($coupon)
+                            <form action="{{ route('checkout.coupon.remove') }}" method="POST" style="display:inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm" style="margin-top:8px;background:transparent;border:1px solid rgba(43,29,29,.2);color:var(--espresso);">Remove</button>
+                            </form>
+                        @endif
+
+                        @if ($coupon)
+                            <div class="summary-row" style="margin-top:12px;">
+                                <span>Discount</span>
+                                <span>- PKR {{ number_format($discount, 0) }}</span>
+                            </div>
+                        @endif
                         <div class="summary-row total">
                             <span>Total</span><span id="checkout-total-amount">PKR {{ number_format($total, 0) }}</span>
                         </div>

@@ -9,7 +9,7 @@ class ShopController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::active()->with('category');
+        $query = Product::active()->with(['category', 'seller']);
 
         if ($search = $request->string('q')->trim()->toString()) {
             $query->where('name', 'like', "%{$search}%");

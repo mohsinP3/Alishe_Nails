@@ -13,6 +13,7 @@ class Product extends Model
 
     protected $fillable = [
         'category_id',
+        'seller_id',
         'name',
         'slug',
         'sku',
@@ -25,6 +26,7 @@ class Product extends Model
         'finish',
         'image',
         'gallery',
+        'media',
         'badge',
         'is_best_seller',
         'is_featured',
@@ -35,6 +37,7 @@ class Product extends Model
 
     protected $casts = [
         'gallery' => 'array',
+        'media' => 'array',
         'whats_included' => 'array',
         'price' => 'decimal:2',
         'compare_at_price' => 'decimal:2',
@@ -48,6 +51,11 @@ class Product extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function seller(): BelongsTo
+    {
+        return $this->belongsTo(Seller::class);
     }
 
     public function reviews(): HasMany
@@ -66,9 +74,19 @@ class Product extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    public function wishlistedBy()
+    {
+        return $this->belongsToMany(User::class, 'wishlists')->withTimestamps();
+    }
+
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('is_active', true)->where(function ($query) {
+            $query->whereNull('seller_id')
+                ->orWhereHas('seller', fn ($seller) => $seller->where('status', 'approved')->whereHas('subscriptions', function ($subscription) {
+                    $subscription->where('status', 'active')->where('expires_at', '>', now());
+                }));
+        });
     }
 
     public function isInStock(): bool
@@ -123,6 +141,103 @@ class Product extends Model
             ->map(fn ($file) => asset('images/products/'.$file))
             ->values()
             ->all();
+    }
+
+    /* ------------------------------------------------------------------
+     |  Unified ordered media gallery ({ type: image|video, path, order })
+     * ------------------------------------------------------------------ */
+
+    /**
+     * Ordered media items, always non-empty-safe. Falls back to the legacy
+     * `image` + `gallery` columns for products saved before the `media`
+     * column existed, so historical rows keep rendering unchanged.
+     */
+    public function getMediaItemsAttribute(): array
+    {
+        $items = collect($this->media ?? [])
+            ->filter(fn ($item) => is_array($item) && ! empty($item['type']) && ! empty($item['path']))
+            ->sortBy('order')
+            ->values();
+
+        if ($items->isNotEmpty()) {
+            return $items->all();
+        }
+
+        $legacy = [];
+
+        if (! empty($this->attributes['image'])) {
+            $legacy[] = ['type' => 'image', 'path' => $this->attributes['image'], 'order' => 0];
+        }
+
+        foreach ((array) ($this->gallery ?? []) as $path) {
+            $legacy[] = ['type' => 'image', 'path' => $path, 'order' => count($legacy)];
+        }
+
+        return $legacy;
+    }
+
+    public function mediaUrl(string $type, string $path): string
+    {
+        $folder = $type === 'video' ? 'videos/products' : 'images/products';
+
+        return asset($folder.'/'.$path);
+    }
+
+    public function mediaExists(string $type, string $path): bool
+    {
+        $folder = $type === 'video' ? 'videos/products' : 'images/products';
+
+        return file_exists(public_path($folder.'/'.$path));
+    }
+
+    /**
+     * Render-ready media list: only items whose file actually exists, as
+     * ['type', 'url']. Views render one slot per entry — a product with a
+     * single image gets exactly one slot and never an empty placeholder.
+     */
+    public function getMediaUrlsAttribute(): array
+    {
+        return collect($this->media_items)
+            ->filter(fn (array $item) => $this->mediaExists($item['type'], $item['path']))
+            ->map(fn (array $item) => [
+                'type' => $item['type'],
+                'url' => $this->mediaUrl($item['type'], $item['path']),
+            ])
+            ->values()
+            ->all();
+    }
+
+    /** First media item in the gallery (image or video). */
+    public function getCoverMediaAttribute(): ?array
+    {
+        return $this->media_items[0] ?? null;
+    }
+
+    /**
+     * URL of the first IMAGE in the gallery — used for small thumbnails
+     * (cart rows, admin lists) and OG tags where a video won't do.
+     */
+    public function getCoverImageUrlAttribute(): ?string
+    {
+        foreach ($this->media_items as $item) {
+            if ($item['type'] === 'image' && $this->mediaExists($item['type'], $item['path'])) {
+                return $this->mediaUrl($item['type'], $item['path']);
+            }
+        }
+
+        return null;
+    }
+
+    /** Filename of the first IMAGE in the gallery (stored in cart rows). */
+    public function getCoverImagePathAttribute(): ?string
+    {
+        foreach ($this->media_items as $item) {
+            if ($item['type'] === 'image' && $this->mediaExists($item['type'], $item['path'])) {
+                return $item['path'];
+            }
+        }
+
+        return null;
     }
 
     public function getRouteKeyName(): string

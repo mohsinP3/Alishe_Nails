@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Services\InstagramFeedService;
 
 class HomeController extends Controller
 {
-    public function index()
+    public function index(InstagramFeedService $instagram)
     {
         $collections = Category::withCount(['products' => fn ($q) => $q->where('is_active', true)])->get();
 
@@ -22,6 +23,10 @@ class HomeController extends Controller
             ->take(4)
             ->get();
 
-        return view('home.index', compact('collections', 'bestSellers', 'featured'));
+        // Reads only from the local instagram_posts table (the sync cache),
+        // so API/token problems can never crash or slow the homepage.
+        $instagramPosts = $instagram->latestFeed((int) config('services.instagram.feed_size', 8));
+
+        return view('home.index', compact('collections', 'bestSellers', 'featured', 'instagramPosts'));
     }
 }

@@ -60,7 +60,7 @@ class Cart
             'product_id' => $product->id,
             'name' => $product->name,
             'slug' => $product->slug,
-            'image' => $product->image,
+            'image' => $product->cover_image_path,
             'price' => (float) $product->price,
             'shape' => $shape,
             'size' => $size,

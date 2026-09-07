@@ -35,6 +35,7 @@ class AdminPagesRenderTest extends TestCase
             route('admin.orders.index'),
             route('admin.customers.index'),
             route('admin.reviews.index'),
+            route('admin.campaign-pitches.index'),
             route('admin.analytics.index'),
             route('admin.settings.index'),
         ];

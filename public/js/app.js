@@ -144,15 +144,6 @@ document.addEventListener('DOMContentLoaded', function () {
   bindWishlist();
   bindShopAjax();
 
-  var galleryInput = document.querySelector('#gallery');
-  var galleryFileLabel = document.querySelector('[data-gallery-file-label]');
-  if (galleryInput && galleryFileLabel) {
-    galleryInput.addEventListener('change', function () {
-      var count = galleryInput.files.length;
-      galleryFileLabel.textContent = count ? count + ' image' + (count === 1 ? '' : 's') + ' selected' : 'Add gallery images';
-    });
-  }
-
   // ---------- Mobile navbar toggle ----------
   var navbar = document.querySelector('.navbar');
   var navToggle = document.querySelector('.navbar__toggle');
@@ -171,27 +162,43 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // ---------- Product gallery ----------
-  var mainImage = document.querySelector('[data-gallery-main] img');
-  document.querySelectorAll('[data-gallery-thumb]').forEach(function (thumb) {
+  // ---------- Product media gallery (images + videos, ordered) ----------
+  var mediaSlides = document.querySelectorAll('[data-media-slide]');
+
+  function pauseInactiveVideos() {
+    mediaSlides.forEach(function (slide) {
+      if (slide.classList.contains('is-active')) return;
+      var video = slide.querySelector('video');
+      if (video) video.pause();
+    });
+  }
+
+  document.querySelectorAll('[data-media-thumb]').forEach(function (thumb) {
     thumb.addEventListener('click', function () {
-      if (!mainImage) return;
-      document.querySelectorAll('[data-gallery-thumb]').forEach(function (t) {
+      mediaSlides.forEach(function (slide) { slide.classList.remove('is-active'); });
+      document.querySelectorAll('[data-media-thumb]').forEach(function (t) {
         t.classList.remove('is-active');
       });
+
+      var target = document.querySelector('[data-media-slide][data-index="' + thumb.dataset.index + '"]');
+      if (target) target.classList.add('is-active');
       thumb.classList.add('is-active');
-      mainImage.src = thumb.dataset.fullImage;
+      pauseInactiveVideos();
     });
   });
 
-  var galleryMain = document.querySelector('[data-gallery-main]');
-  if (galleryMain) {
-    galleryMain.addEventListener('click', function () { galleryMain.classList.toggle('is-zoomed'); });
-    galleryMain.addEventListener('keydown', function (event) {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        galleryMain.classList.toggle('is-zoomed');
-      }
+  var mediaStage = document.querySelector('[data-media-stage]');
+  if (mediaStage) {
+    mediaStage.addEventListener('click', function (event) {
+      // Click-to-zoom stays image-only; never hijack clicks on video controls.
+      if (event.target.tagName === 'VIDEO' || event.target.closest('video')) return;
+      mediaStage.classList.toggle('is-zoomed');
+    });
+    mediaStage.addEventListener('keydown', function (event) {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      if (event.target.tagName === 'VIDEO' || event.target.closest('video')) return;
+      event.preventDefault();
+      mediaStage.classList.toggle('is-zoomed');
     });
   }
 

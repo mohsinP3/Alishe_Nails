@@ -16,9 +16,9 @@
                 <li><a href="{{ route('shop.index') }}" class="{{ request()->routeIs('shop.*') || request()->routeIs('products.*') ? 'is-active' : '' }}">Shop</a></li>
                 <li><a href="{{ route('about.index') }}" class="{{ request()->routeIs('about.*') ? 'is-active' : '' }}">About Us</a></li>
                 <li><a href="{{ route('how-to-apply.index') }}" class="{{ request()->routeIs('how-to-apply.*') ? 'is-active' : '' }}">How to Apply</a></li>
-                <li><a href="{{ route('custom-design.create') }}" class="{{ request()->routeIs('custom-design.*') ? 'is-active' : '' }}">Custom Design</a></li>
                 <li><a href="{{ route('policies.index') }}" class="{{ request()->routeIs('policies.*') ? 'is-active' : '' }}">Policies</a></li>
                 <li><a href="{{ route('contact.index') }}" class="{{ request()->routeIs('contact.*') ? 'is-active' : '' }}">Contact</a></li>
+                <li><a href="{{ route('work-with-us.index') }}" class="{{ request()->routeIs('work-with-us.*') ? 'is-active' : '' }}">Work with Us</a></li>
             </ul>
         </nav>
 
@@ -78,9 +78,9 @@
             <li><a href="{{ route('shop.index') }}">Shop</a></li>
             <li><a href="{{ route('about.index') }}">About Us</a></li>
             <li><a href="{{ route('how-to-apply.index') }}">How to Apply</a></li>
-            <li><a href="{{ route('custom-design.create') }}">Custom Design</a></li>
             <li><a href="{{ route('policies.index') }}">Policies</a></li>
             <li><a href="{{ route('contact.index') }}">Contact</a></li>
+            <li><a href="{{ route('work-with-us.index') }}">Work with Us</a></li>
             @auth('web')
                 <li><a href="{{ route('account.profile') }}">My Account</a></li>
                 <li><a href="{{ route('account.orders') }}">My Orders</a></li>

@@ -92,36 +92,35 @@
                     <textarea id="description" name="description" rows="4">{{ old('description', $product->description) }}</textarea>
                 </div>
 
-                <div class="form-field full">
-                    <label for="image">Product Image</label>
-                    <input type="file" id="image" name="image" accept="image/*">
-                    @error('image') <div class="error">{{ $message }}</div> @enderror
+                <div class="form-field full" data-media-manager data-max-items="10" data-asset-base="{{ rtrim(asset('/'), '/') }}">
+                    <label>Product Media</label>
 
-                    @if ($product->image_url)
-                        <img src="{{ $product->image_url }}" alt="{{ $product->name }}" style="width:80px;height:80px;object-fit:cover;border-radius:6px;margin-top:10px;">
-                        <div style="font-size:.75rem;color:rgba(43,29,29,.6);margin-top:4px;">Current image — upload a new file to replace it.</div>
-                    @endif
-                </div>
+                    <div class="media-manager__actions">
+                        <button type="button" class="btn btn-outline btn-sm" data-media-add="image">
+                            <i class="fa-solid fa-image"></i> Add Image
+                        </button>
+                        <button type="button" class="btn btn-outline btn-sm" data-media-add="video">
+                            <i class="fa-solid fa-film"></i> Add Video
+                        </button>
+                    </div>
 
-                <div class="form-field full">
-                    <label for="gallery">Gallery Images</label>
-                    <input type="file" id="gallery" name="gallery[]" accept="image/jpeg,image/png,image/webp" multiple class="admin-file-input">
-                    <label for="gallery" class="admin-upload-trigger">
-                        <i class="fa-solid fa-plus"></i>
-                        <span data-gallery-file-label>Add gallery images</span>
-                    </label>
-                    <small style="display:block;margin-top:6px;color:rgba(43,29,29,.65);">Select up to 8 additional product photos. Uploading new gallery images replaces the current gallery.</small>
-                    @error('gallery') <div class="error">{{ $message }}</div> @enderror
-                    @error('gallery.*') <div class="error">{{ $message }}</div> @enderror
+                    {{-- Hidden pickers opened by the buttons above --}}
+                    <input type="file" data-media-picker="image" accept=".jpg,.jpeg,.png,.webp" hidden aria-hidden="true" tabindex="-1">
+                    <input type="file" data-media-picker="video" accept=".mp4,.webm" hidden aria-hidden="true" tabindex="-1">
 
-                    @if ($product->gallery_urls)
-                        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
-                            @foreach ($product->gallery_urls as $index => $url)
-                                <img src="{{ $url }}" alt="{{ $product->name }} gallery image {{ $index + 1 }}" style="width:80px;height:80px;object-fit:cover;border-radius:6px;">
-                            @endforeach
-                        </div>
-                        <div style="font-size:.75rem;color:rgba(43,29,29,.6);margin-top:4px;">Current gallery images.</div>
-                    @endif
+                    <small style="display:block;margin-top:6px;color:rgba(43,29,29,.65);">
+                        Images: JPG, PNG or WebP up to 4MB. Videos: MP4 or WebM up to 20MB.
+                        Mix 1–10 items in any order — drag cards or use the arrows to re-order, &#10005; to remove.
+                    </small>
+                    @error('media') <div class="error">{{ $message }}</div> @enderror
+                    @error('media_files.*') <div class="error">{{ $message }}</div> @enderror
+                    @error('existing_media.*') <div class="error">{{ $message }}</div> @enderror
+
+                    {{-- Ordered thumbnail cards are rendered here by admin.js --}}
+                    <div class="media-manager__list" data-media-list></div>
+
+                    {{-- Current gallery bootstrapped into the manager on load --}}
+                    <script type="application/json" data-media-existing>@json($product->media_items)</script>
                 </div>
 
             </div>

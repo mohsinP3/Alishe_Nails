@@ -26,6 +26,16 @@ return [
         'handle' => env('INSTAGRAM_HANDLE', 'alishe_nails'),
         'access_token' => env('INSTAGRAM_ACCESS_TOKEN'),
         'business_account_id' => env('INSTAGRAM_BUSINESS_ACCOUNT_ID'),
+        // "Instagram API with Facebook Login" (Meta Developer app) uses
+        // https://graph.facebook.com and requires business_account_id.
+        // For an "Instagram API with Instagram Login" token instead, set
+        // INSTAGRAM_API_BASE=https://graph.instagram.com (uses /me).
+        'api_base' => env('INSTAGRAM_API_BASE', 'https://graph.facebook.com'),
+        'graph_version' => env('INSTAGRAM_GRAPH_VERSION', 'v21.0'),
+        // How many recent posts a sync pulls from the API / keeps in the DB.
+        'fetch_limit' => env('INSTAGRAM_FETCH_LIMIT', 12),
+        // How many posts the homepage gallery shows.
+        'feed_size' => env('INSTAGRAM_FEED_SIZE', 8),
     ],
 
     'whatsapp' => [

@@ -20,6 +20,10 @@ class CartController extends Controller
 
     public function add(Request $request, Product $product)
     {
+        if ($product->seller && ! $product->seller->hasActiveSubscription()) {
+            return back()->with('error', 'This seller subscription has expired and the product is currently unavailable.');
+        }
+
         $validated = $request->validate([
             'qty' => ['nullable', 'integer', 'min:1', 'max:20'],
             'shape' => ['nullable', 'string', 'max:50'],

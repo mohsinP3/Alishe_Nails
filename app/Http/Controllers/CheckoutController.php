@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreCheckoutRequest;
 use App\Mail\AdminNewOrderMail;
 use App\Mail\OrderConfirmationMail;
+use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -14,7 +15,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\ValidationException;
 
 class CheckoutController extends Controller
@@ -32,11 +32,26 @@ class CheckoutController extends Controller
             $subtotal
         )['fee'];
 
+        $couponCode = data_get($request->session()->get('applied_coupon'), 'code');
+        $coupon = $couponCode ? Coupon::where('code', strtoupper($couponCode))->first() : null;
+        $discount = 0;
+
+        if ($coupon && $coupon->isValid()) {
+            $discount = min($coupon->getDiscountFor($subtotal), $subtotal);
+        } else {
+            $request->session()->forget('applied_coupon');
+            $coupon = null;
+        }
+
+        $total = max(0, $subtotal + $shipping - $discount);
+
         return view('checkout.index', [
             'items' => Cart::content(),
             'subtotal' => $subtotal,
             'shipping' => $shipping,
-            'total' => $subtotal + $shipping,
+            'discount' => $discount,
+            'coupon' => $coupon,
+            'total' => $total,
             'user' => $request->user(),
         ]);
     }
@@ -59,6 +74,30 @@ class CheckoutController extends Controller
             'total' => $total,
             'zone_label' => $res['zone_label'],
         ]);
+    }
+
+    public function applyCoupon(Request $request)
+    {
+        $validated = $request->validate([
+            'code' => ['required', 'string', 'max:50'],
+        ]);
+
+        $coupon = Coupon::where('code', strtoupper(trim($validated['code'])))->first();
+
+        if (! $coupon || ! $coupon->isValid()) {
+            return back()->with('error', 'That promo code is invalid or has expired.');
+        }
+
+        $request->session()->put('applied_coupon', ['code' => $coupon->code]);
+
+        return redirect()->route('checkout.index')->with('success', 'Coupon applied successfully.');
+    }
+
+    public function removeCoupon(Request $request)
+    {
+        $request->session()->forget('applied_coupon');
+
+        return redirect()->route('checkout.index')->with('success', 'Promo code removed.');
     }
 
     public function store(StoreCheckoutRequest $request)
@@ -101,6 +140,13 @@ class CheckoutController extends Controller
                         ]);
                     }
 
+                    $product->load('seller');
+                    if ($product->seller && ! $product->seller->hasActiveSubscription()) {
+                        throw ValidationException::withMessages([
+                            'cart' => "\"{$row['name']}\" is no longer available because the seller subscription has expired.",
+                        ]);
+                    }
+
                     if ($product->stock < $row['qty']) {
                         throw ValidationException::withMessages([
                             'cart' => "Only {$product->stock} left of \"{$product->name}\" — please update the quantity in your cart.",
@@ -119,6 +165,10 @@ class CheckoutController extends Controller
                         'qty' => $row['qty'],
                         'price' => $currentPrice,
                         'line_total' => $lineTotal,
+                        'seller_id' => $product->seller_id,
+                        'commission_rate' => 0,
+                        'commission_amount' => 0,
+                        'seller_earning' => $lineTotal,
                     ];
 
                     $product->decrement('stock', $row['qty']);
@@ -131,13 +181,27 @@ class CheckoutController extends Controller
                 );
                 $shipping = $shippingRes['fee'];
 
+                $couponCode = data_get($request->session()->get('applied_coupon'), 'code');
+                $coupon = $couponCode ? Coupon::where('code', strtoupper($couponCode))->first() : null;
+                $discountAmount = 0;
+
+                if ($coupon && $coupon->isValid()) {
+                    $discountAmount = min($coupon->getDiscountFor($subtotal), $subtotal);
+                }
+
                 $order = Order::create([
                     ...$validated,
                     'user_id' => $request->user()?->id,
                     'subtotal' => $subtotal,
                     'shipping' => $shipping,
-                    'total' => $subtotal + $shipping,
+                    'discount_amount' => $discountAmount,
+                    'coupon_code' => $coupon?->code,
+                    'total' => max(0, $subtotal + $shipping - $discountAmount),
                 ]);
+
+                if ($coupon) {
+                    $coupon->increment('used_count');
+                }
 
                 foreach ($lineItems as $item) {
                     OrderItem::create([
@@ -149,6 +213,10 @@ class CheckoutController extends Controller
                         'quantity' => $item['qty'],
                         'price' => $item['price'],
                         'line_total' => $item['line_total'],
+                        'seller_id' => $item['seller_id'],
+                        'commission_rate' => $item['commission_rate'],
+                        'commission_amount' => $item['commission_amount'],
+                        'seller_earning' => $item['seller_earning'],
                     ]);
                 }
 
@@ -159,6 +227,7 @@ class CheckoutController extends Controller
         }
 
         Cart::clear();
+        $request->session()->forget('applied_coupon');
 
         $request->session()->put('last_order_signature', $cartSignature);
         $request->session()->put('last_order_signature_at', now());

@@ -60,6 +60,35 @@
                 <button type="submit" class="btn btn-primary btn-block">Update Password</button>
             </form>
         </div>
+
+        <div class="admin-card">
+            <div class="admin-card__head"><h3>Instagram Feed</h3></div>
+            <p style="font-size:.85rem;color:rgba(43,29,29,.65);margin-bottom:16px;">
+                The homepage "Follow Us on Instagram" gallery is synced from the
+                <strong>{{ '@'.config('services.instagram.handle') }}</strong> account via the Instagram Graph API —
+                automatically every 6 hours (requires the Laravel scheduler cron), or on demand below.
+                If the access token expires, previously synced posts keep showing until the next successful sync.
+            </p>
+
+            <div class="form-field" style="margin-bottom:12px;">
+                <label>Last Sync</label>
+                <input type="text"
+                       value="{{ $instagramStatus ? \Illuminate\Support\Carbon::parse($instagramStatus['at'])->format('d M Y, h:i A') : 'Never' }}"
+                       disabled>
+            </div>
+
+            @if ($instagramStatus)
+                <p style="font-size:.85rem;margin-bottom:14px;color:{{ $instagramStatus['success'] ? '#1c7c3c' : '#b3261e' }};">
+                    <i class="fa-solid {{ $instagramStatus['success'] ? 'fa-circle-check' : 'fa-circle-exclamation' }}"></i>
+                    {{ $instagramStatus['message'] }}
+                </p>
+            @endif
+
+            <form action="{{ route('admin.instagram.sync') }}" method="POST">
+                @csrf
+                <button type="submit" class="btn btn-primary">Sync Now</button>
+            </form>
+        </div>
     </div>
 
 @endsection

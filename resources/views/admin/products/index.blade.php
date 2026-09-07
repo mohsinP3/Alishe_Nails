@@ -30,8 +30,8 @@
                 @forelse ($products as $product)
                     <tr>
                         <td>
-                            @if ($product->image_url)
-                                <img src="{{ $product->image_url }}" style="width:44px;height:44px;object-fit:cover;border-radius:6px;" alt="{{ $product->name }}">
+                            @if ($product->cover_image_url)
+                                <img src="{{ $product->cover_image_url }}" style="width:44px;height:44px;object-fit:cover;border-radius:6px;" alt="{{ $product->name }}">
                             @else
                                 <div style="width:44px;height:44px;border-radius:6px;background:var(--blush);"></div>
                             @endif

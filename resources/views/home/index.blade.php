@@ -101,18 +101,45 @@
         </div>
 
         <div class="socials-grid">
-            @php
-                $instaImages = ['coffee-moment.jpg', 'hand-nails.jpg', 'gift-box.jpg', 'flat-lay.jpg'];
-            @endphp
-            @foreach ($instaImages as $img)
-                <div class="socials-grid__item">
-                    @if (file_exists(public_path('images/instagram/'.$img)))
-                        <img src="{{ asset('images/instagram/'.$img) }}" alt="Alishe Nails on Instagram">
-                    @else
-                        <div class="img-placeholder">Alishe Nails<br>Social image unavailable</div>
+            @forelse ($instagramPosts as $post)
+                <a href="{{ $post->permalink }}"
+                   class="socials-grid__item socials-grid__link"
+                   target="_blank"
+                   rel="noopener"
+                   aria-label="Open this post on Instagram">
+                    <img src="{{ $post->display_url }}"
+                         alt="{{ \Illuminate\Support\Str::limit($post->caption ?? 'Alishe Nails on Instagram', 80) }}"
+                         loading="lazy">
+                    @if ($post->isVideo())
+                        <span class="socials-grid__badge"><i class="fa-solid fa-play"></i></span>
                     @endif
-                </div>
-            @endforeach
+                </a>
+            @empty
+                {{-- Fallback: no synced posts yet (sync never ran or is not
+                     configured) — keep the original static placeholders. --}}
+                @php
+                    $instaImages = ['coffee-moment.jpg', 'hand-nails.jpg', 'gift-box.jpg', 'flat-lay.jpg'];
+                @endphp
+                @foreach ($instaImages as $img)
+                    <div class="socials-grid__item">
+                        @if (file_exists(public_path('images/instagram/'.$img)))
+                            <img src="{{ asset('images/instagram/'.$img) }}" alt="Alishe Nails on Instagram">
+                        @else
+                            <div class="img-placeholder">Alishe Nails<br>Social image unavailable</div>
+                        @endif
+                    </div>
+                @endforeach
+            @endforelse
+        </div>
+    </section>
+
+    {{-- ---------- Work With Us campaign banner ---------- --}}
+    <section class="campaign-banner">
+        <div class="container">
+            <span class="campaign-banner__eyebrow">For Creators &amp; Influencers</span>
+            <h2>Got an Audience? Let's Grow Together.</h2>
+            <p>Alishe Nails is opening up premium campaign space for creators and influencers. Get your content, promo, or collab featured directly to our audience — real estate that converts.</p>
+            <a href="{{ route('work-with-us.index') }}" class="btn btn-primary">Work With Us &rarr;</a>
         </div>
     </section>
 

@@ -13,17 +13,25 @@ class OrderItem extends Model
     protected $fillable = [
         'order_id',
         'product_id',
+        'seller_id',
         'product_name',
         'shape',
         'size',
         'quantity',
         'price',
         'line_total',
+        'commission_rate',
+        'commission_amount',
+        'seller_earning',
+        'payout_status',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
         'line_total' => 'decimal:2',
+        'commission_rate' => 'decimal:2',
+        'commission_amount' => 'decimal:2',
+        'seller_earning' => 'decimal:2',
     ];
 
     public function order(): BelongsTo
@@ -34,5 +42,10 @@ class OrderItem extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function seller(): BelongsTo
+    {
+        return $this->belongsTo(Seller::class);
     }
 }

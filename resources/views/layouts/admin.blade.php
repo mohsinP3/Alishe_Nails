@@ -44,8 +44,17 @@
                     <a href="{{ route('admin.reviews.index') }}" class="admin-nav-link {{ request()->routeIs('admin.reviews.*') ? 'is-active' : '' }}">
                         <i class="fa-solid fa-star"></i> Reviews
                     </a>
+                    <a href="{{ route('admin.campaign-pitches.index') }}" class="admin-nav-link {{ request()->routeIs('admin.campaign-pitches.*') ? 'is-active' : '' }}">
+                        <i class="fa-solid fa-bullhorn"></i> Campaign Pitches
+                    </a>
                     <a href="{{ route('admin.analytics.index') }}" class="admin-nav-link {{ request()->routeIs('admin.analytics.*') ? 'is-active' : '' }}">
                         <i class="fa-solid fa-chart-line"></i> Analytics
+                    </a>
+                    <a href="{{ route('admin.marketplace.index') }}" class="admin-nav-link {{ request()->routeIs('admin.marketplace.*') ? 'is-active' : '' }}">
+                        <i class="fa-solid fa-store"></i> Marketplace
+                    </a>
+                    <a href="{{ route('admin.subscriptions.index') }}" class="admin-nav-link {{ request()->routeIs('admin.subscriptions.*') ? 'is-active' : '' }}">
+                        <i class="fa-solid fa-repeat"></i> Subscriptions
                     </a>
                 </nav>
 

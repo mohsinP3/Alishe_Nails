@@ -1,4 +1,7 @@
 @props(['product'])
+@php
+    $saved = auth('web')->check() && auth('web')->user()->wishlist()->where('products.id', $product->id)->exists();
+@endphp
 <div class="product-card">
     <a href="{{ route('products.show', $product) }}" class="product-card__image" style="display:block;">
         @if ($product->isOutOfStock())
@@ -9,16 +12,34 @@
             <span class="product-card__badge" style="background:#b3261e;">Only {{ $product->stock }} left</span>
         @endif
 
-        <button type="button" class="product-card__wishlist" data-wishlist-id="{{ $product->id }}" aria-label="Add {{ $product->name }} to wishlist" aria-pressed="false">
-            <i class="fa-regular fa-heart"></i>
-        </button>
+        @auth('web')
+            <form action="{{ route('account.wishlist.toggle', $product) }}" method="POST" class="product-card__wishlist-form">
+                @csrf
+                <button type="submit" class="product-card__wishlist" data-wishlist-id="{{ $product->id }}" aria-label="{{ $saved ? 'Remove' : 'Add' }} {{ $product->name }} from wishlist" aria-pressed="{{ $saved ? 'true' : 'false' }}">
+                    <i class="{{ $saved ? 'fa-solid fa-heart' : 'fa-regular fa-heart' }}"></i>
+                </button>
+            </form>
+        @else
+            <a href="{{ route('login') }}" class="product-card__wishlist" data-wishlist-id="{{ $product->id }}" aria-label="Add {{ $product->name }} to wishlist" aria-pressed="false" title="Login to save this product">
+                <i class="fa-regular fa-heart"></i>
+            </a>
+        @endauth
 
-        @if ($product->image_url)
-            <img src="{{ $product->image_url }}" alt="{{ $product->name }}" loading="lazy" data-image-fallback>
+        @php($cover = $product->media_urls[0] ?? null)
+        @if ($cover)
+            @if ($cover['type'] === 'video')
+                <video src="{{ $cover['url'] }}" muted loop playsinline controls preload="metadata"></video>
+            @else
+                <img src="{{ $cover['url'] }}" alt="{{ $product->name }}" loading="lazy" data-image-fallback>
+            @endif
         @else
             <div class="img-placeholder">
                 Alishe Nails<br>Image unavailable
             </div>
+        @endif
+
+        @if ($product->seller)
+            <span class="seller-badge"><i class="fa-solid fa-sparkles"></i> Sold by {{ $product->seller->name }}</span>
         @endif
     </a>
 

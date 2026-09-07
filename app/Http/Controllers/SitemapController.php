@@ -16,6 +16,7 @@ class SitemapController extends Controller
             ['loc' => route('how-to-apply.index'), 'priority' => '0.6'],
             ['loc' => route('policies.index'), 'priority' => '0.4'],
             ['loc' => route('contact.index'), 'priority' => '0.5'],
+            ['loc' => route('work-with-us.index'), 'priority' => '0.5'],
         ])->merge(
             Product::active()->get(['slug', 'updated_at'])->map(fn (Product $product) => [
                 'loc' => route('products.show', $product),

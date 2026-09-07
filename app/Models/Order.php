@@ -32,6 +32,8 @@ class Order extends Model
         'transaction_reference',
         'subtotal',
         'shipping',
+        'discount_amount',
+        'coupon_code',
         'total',
         'status',
         'payment_status',
@@ -41,6 +43,7 @@ class Order extends Model
     protected $casts = [
         'subtotal' => 'decimal:2',
         'shipping' => 'decimal:2',
+        'discount_amount' => 'decimal:2',
         'total' => 'decimal:2',
         'stock_restored_at' => 'datetime',
     ];

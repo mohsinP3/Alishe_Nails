@@ -22,7 +22,21 @@
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     @stack('styles')
 </head>
-<body>
+@php
+    $headerImageFiles = collect(glob(public_path('images/products/*')) ?: [])
+        ->filter(fn ($file) => in_array(strtolower(pathinfo($file, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'webp']))
+        ->values()
+        ->all();
+
+    shuffle($headerImageFiles);
+    $headerImageFiles = array_pad(array_slice($headerImageFiles, 0, 3), 3, public_path('logo.jpeg'));
+    $headerImages = collect($headerImageFiles)
+        ->map(fn ($file) => str_starts_with($file, public_path('images'))
+            ? asset(str_replace('\\', '/', str_replace(public_path().'\\', '', $file)))
+            : asset('images/logo.jpeg'))
+        ->values();
+@endphp
+<body style="--header-image-navbar: url('{{ $headerImages[0] }}'); --header-image-hero: url('{{ $headerImages[1] }}'); --header-image-page: url('{{ $headerImages[2] }}');">
     <x-alert />
 
     <x-navbar />

@@ -9,17 +9,18 @@ class ProductController extends Controller
 {
     public function show(Request $request, Product $product)
     {
-        if (! $product->is_active) {
+        if (! $product->is_active || ($product->seller && ! $product->seller->hasActiveSubscription())) {
             abort(404);
         }
 
-        $product->load(['category']);
+        $product->load(['category', 'seller']);
         $product->setRelation('reviews', $product->approvedReviews()->latest()->get());
 
         $related = Product::active()
             ->where('id', '!=', $product->id)
             ->when($product->category_id, fn ($q) => $q->where('category_id', $product->category_id))
             ->take(4)
+            ->with('seller')
             ->get();
 
         $userHasReviewed = $request->user()

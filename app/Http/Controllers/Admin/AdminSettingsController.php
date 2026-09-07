@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\InstagramFeedService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -10,9 +11,12 @@ use Illuminate\Validation\Rules\Password;
 
 class AdminSettingsController extends Controller
 {
-    public function index()
+    public function index(InstagramFeedService $instagram)
     {
-        return view('admin.settings.index', ['admin' => Auth::guard('admin')->user()]);
+        return view('admin.settings.index', [
+            'admin' => Auth::guard('admin')->user(),
+            'instagramStatus' => $instagram->lastSync(),
+        ]);
     }
 
     /**

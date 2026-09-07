@@ -1,0 +1,2 @@
+<!DOCTYPE html>
+<html><body style="font-family:Arial,sans-serif;padding:24px;"><h2>Your seller subscription expires soon</h2><p>Hi {{ $subscription->seller->name }},</p><p>Your {{ $subscription->plan->name }} subscription expires on {{ $subscription->expires_at->format('d M Y') }}.</p><p>Renew before expiry to keep your nail designs visible on Alishe Nails.</p><p><a href="{{ route('seller.login') }}">Open seller dashboard</a></p></body></html>
