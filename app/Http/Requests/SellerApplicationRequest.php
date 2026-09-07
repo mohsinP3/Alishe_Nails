@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Password;
 
 class SellerApplicationRequest extends FormRequest
 {
@@ -16,7 +17,7 @@ class SellerApplicationRequest extends FormRequest
             'instagram_handle' => ['nullable', 'string', 'max:100'],
             'phone' => ['nullable', 'string', 'max:30'],
             'product_details' => ['required', 'string', 'max:3000'],
-            'password' => ['required', 'confirmed', 'string', 'min:8'],
+            'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
         ];
     }
 }

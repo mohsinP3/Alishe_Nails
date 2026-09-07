@@ -9,7 +9,10 @@ class ShopController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::active()->with(['category', 'seller']);
+        $query = Product::active()
+            ->with(['category', 'seller'])
+            ->withCount('approvedReviews')
+            ->withAvg('approvedReviews', 'rating');
 
         if ($search = $request->string('q')->trim()->toString()) {
             $query->where('name', 'like', "%{$search}%");

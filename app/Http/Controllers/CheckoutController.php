@@ -258,7 +258,7 @@ class CheckoutController extends Controller
      */
     public function success(Request $request, Order $order)
     {
-        $validToken = $request->query('signature') === $order->access_token;
+        $validToken = hash_equals($order->access_token, (string) $request->query('signature'));
         $isOwner = $request->user() && $order->user_id === $request->user()->id;
 
         if (! $validToken && ! $isOwner) {

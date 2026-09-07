@@ -14,12 +14,10 @@ class HomeController extends Controller
 
         $bestSellers = Product::active()
             ->where('is_best_seller', true)
+            ->with('seller')
+            ->withCount('approvedReviews')
+            ->withAvg('approvedReviews', 'rating')
             ->latest()
-            ->take(4)
-            ->get();
-
-        $featured = Product::active()
-            ->where('is_featured', true)
             ->take(4)
             ->get();
 
@@ -27,6 +25,6 @@ class HomeController extends Controller
         // so API/token problems can never crash or slow the homepage.
         $instagramPosts = $instagram->latestFeed((int) config('services.instagram.feed_size', 8));
 
-        return view('home.index', compact('collections', 'bestSellers', 'featured', 'instagramPosts'));
+        return view('home.index', compact('collections', 'bestSellers', 'instagramPosts'));
     }
 }

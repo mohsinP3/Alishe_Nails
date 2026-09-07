@@ -14,6 +14,7 @@ class ProductController extends Controller
         }
 
         $product->load(['category', 'seller']);
+        $product->loadCount('approvedReviews')->loadAvg('approvedReviews', 'rating');
         $product->setRelation('reviews', $product->approvedReviews()->latest()->get());
 
         $related = Product::active()
@@ -21,6 +22,8 @@ class ProductController extends Controller
             ->when($product->category_id, fn ($q) => $q->where('category_id', $product->category_id))
             ->take(4)
             ->with('seller')
+            ->withCount('approvedReviews')
+            ->withAvg('approvedReviews', 'rating')
             ->get();
 
         $userHasReviewed = $request->user()

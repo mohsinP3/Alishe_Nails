@@ -51,7 +51,13 @@ class Order extends Model
     protected static function booted(): void
     {
         static::creating(function (Order $order) {
-            $order->order_number ??= 'ALN-'.strtoupper(Str::random(8));
+            // order_number has a unique constraint; regenerate on the
+            // (astronomically rare) chance of a collision.
+            if (blank($order->order_number)) {
+                do {
+                    $order->order_number = 'ALN-'.strtoupper(Str::random(8));
+                } while (static::query()->where('order_number', $order->order_number)->exists());
+            }
             $order->status ??= 'pending';
             $order->payment_status ??= 'pending';
             // A random, unguessable token lets guest checkouts view their own

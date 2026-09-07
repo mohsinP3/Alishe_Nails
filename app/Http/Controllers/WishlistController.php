@@ -9,7 +9,12 @@ class WishlistController extends Controller
 {
     public function index(Request $request)
     {
-        $products = $request->user()->wishlist()->latest()->paginate(12);
+        $products = $request->user()->wishlist()
+            ->with('seller')
+            ->withCount('approvedReviews')
+            ->withAvg('approvedReviews', 'rating')
+            ->latest()
+            ->paginate(12);
 
         return view('account.wishlist', compact('products'));
     }

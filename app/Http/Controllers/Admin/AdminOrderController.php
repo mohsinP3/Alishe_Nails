@@ -18,6 +18,9 @@ class AdminOrderController extends Controller
         $query = Order::query()->latest();
 
         if ($status = $request->string('status')->toString()) {
+            if (! in_array($status, Order::STATUSES, true)) {
+                abort(422, 'Invalid status filter.');
+            }
             $query->where('status', $status);
         }
 

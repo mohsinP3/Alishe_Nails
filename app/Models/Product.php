@@ -110,11 +110,22 @@ class Product extends Model
      */
     public function getAverageRatingAttribute(): float
     {
+        // Prefer the withAvg() precomputed attribute so listing pages
+        // don't run one AVG query per product.
+        if (array_key_exists('approved_reviews_avg_rating', $this->attributes)) {
+            return round((float) $this->attributes['approved_reviews_avg_rating'], 1);
+        }
+
         return round($this->approvedReviews()->avg('rating') ?? 0, 1);
     }
 
     public function getReviewsCountAttribute(): int
     {
+        // Prefer the withCount() precomputed attribute on listing pages.
+        if (array_key_exists('approved_reviews_count', $this->attributes)) {
+            return (int) $this->attributes['approved_reviews_count'];
+        }
+
         return $this->approvedReviews()->count();
     }
 

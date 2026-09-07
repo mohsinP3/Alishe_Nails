@@ -63,19 +63,19 @@ Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])
     ->name('reviews.destroy');
 
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
+Route::post('/cart/add/{product}', [CartController::class, 'add'])->middleware('throttle:30,1')->name('cart.add');
 Route::patch('/cart/update/{rowId}', [CartController::class, 'update'])->name('cart.update');
 Route::delete('/cart/remove/{rowId}', [CartController::class, 'remove'])->name('cart.remove');
 
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::get('/checkout/shipping-fee', [CheckoutController::class, 'calculateShippingFee'])->name('checkout.shippingFee');
-Route::post('/checkout/coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.coupon.apply');
+Route::post('/checkout/coupon', [CheckoutController::class, 'applyCoupon'])->middleware('throttle:5,1')->name('checkout.coupon.apply');
 Route::delete('/checkout/coupon', [CheckoutController::class, 'removeCoupon'])->name('checkout.coupon.remove');
-Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::post('/checkout', [CheckoutController::class, 'store'])->middleware('throttle:5,1')->name('checkout.store');
 Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
 
 Route::get('/track-order', [TrackOrderController::class, 'index'])->name('track-order.index');
-Route::post('/track-order', [TrackOrderController::class, 'search'])->name('track-order.search');
+Route::post('/track-order', [TrackOrderController::class, 'search'])->middleware('throttle:5,1')->name('track-order.search');
 
 Route::get('/about', [AboutController::class, 'index'])->name('about.index');
 Route::get('/how-to-apply', [HowToApplyController::class, 'index'])->name('how-to-apply.index');

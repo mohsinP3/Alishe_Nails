@@ -33,15 +33,17 @@ class ShippingRate extends Model
 
         $rate = null;
         if ($area) {
+            // Exact match (not LIKE) — the city/area come from user input and
+            // LIKE wildcards (% / _) could otherwise match unintended rows.
             $rate = self::where('is_active', true)
-                ->where('city', 'like', $city)
-                ->where('area', 'like', $area)
+                ->where('city', $city)
+                ->where('area', $area)
                 ->first();
         }
 
         if (! $rate) {
             $rate = self::where('is_active', true)
-                ->where('city', 'like', $city)
+                ->where('city', $city)
                 ->where(function ($q) {
                     $q->whereNull('area')->orWhere('area', '');
                 })

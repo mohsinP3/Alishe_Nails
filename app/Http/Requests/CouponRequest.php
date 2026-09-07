@@ -16,10 +16,15 @@ class CouponRequest extends FormRequest
         return [
             'code' => ['required', 'string', 'max:50', 'regex:/^[A-Z0-9-]+$/i'],
             'type' => ['required', 'in:fixed,percent'],
-            'value' => ['required', 'numeric', 'min:0.01'],
+            'value' => ['required', 'numeric', 'min:0.01', 'max:9999999.99'],
             'expires_at' => ['nullable', 'date', 'after_or_equal:today'],
             'usage_limit' => ['nullable', 'integer', 'min:1'],
         ];
+    }
+
+    public function withValidator($validator): void
+    {
+        $validator->sometimes('value', 'max:100', fn ($input) => $input->type === 'percent');
     }
 
     public function prepareForValidation(): void

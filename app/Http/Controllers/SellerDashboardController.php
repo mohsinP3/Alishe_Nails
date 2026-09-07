@@ -81,7 +81,13 @@ class SellerDashboardController extends Controller
     private function storeImage($file): string
     {
         $filename = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)).'-'.time().'-'.Str::random(6).'.'.strtolower($file->getClientOriginalExtension());
+
+        if (! is_dir(public_path('images/products'))) {
+            mkdir(public_path('images/products'), 0775, true);
+        }
+
         $file->move(public_path('images/products'), $filename);
+
         return $filename;
     }
 

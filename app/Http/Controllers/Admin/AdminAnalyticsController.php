@@ -11,15 +11,22 @@ class AdminAnalyticsController extends Controller
 {
     public function index()
     {
-        // Revenue for each of the last 7 days, oldest first — used for a simple bar chart.
-        $days = collect(range(6, 0))->map(fn ($i) => Carbon::today()->subDays($i));
+        // Revenue for each of the last 7 days, oldest first — used for a simple
+        // bar chart. One grouped query instead of one SUM query per day.
+        $revenueRows = Order::query()
+            ->where('status', '!=', 'cancelled')
+            ->whereBetween('created_at', [
+                Carbon::today()->subDays(6)->startOfDay(),
+                Carbon::today()->endOfDay(),
+            ])
+            ->groupBy('date')
+            ->selectRaw('DATE(created_at) as date, SUM(total) as total')
+            ->pluck('total', 'date');
 
-        $revenueByDay = $days->map(function (Carbon $day) {
-            return [
-                'label' => $day->format('D'),
-                'total' => (float) Order::whereDate('created_at', $day)->where('status', '!=', 'cancelled')->sum('total'),
-            ];
-        });
+        $revenueByDay = collect(range(6, 0))->map(fn ($i) => [
+            'label' => Carbon::today()->subDays($i)->format('D'),
+            'total' => (float) ($revenueRows[Carbon::today()->subDays($i)->toDateString()] ?? 0),
+        ]);
 
         $ordersByStatus = Order::selectRaw('status, count(*) as total')
             ->groupBy('status')
@@ -44,7 +51,7 @@ class AdminAnalyticsController extends Controller
 
         if ($token && $businessId) {
             try {
-                $response = \Illuminate\Support\Facades\Http::get("https://graph.facebook.com/v19.0/{$businessId}", [
+                $response = \Illuminate\Support\Facades\Http::timeout(10)->get("https://graph.facebook.com/v19.0/{$businessId}", [
                     'fields' => 'name,username,profile_picture_url,followers_count,follows_count,media_count,media{id,caption,media_type,media_url,permalink,like_count,comments_count,timestamp}',
                     'access_token' => $token,
                 ]);
