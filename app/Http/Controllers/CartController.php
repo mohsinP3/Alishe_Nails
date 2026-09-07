@@ -34,9 +34,22 @@ class CartController extends Controller
         );
 
         if ($rowId === null) {
-            return back()->with('error', $product->stock <= 0
+            $message = $product->stock <= 0
                 ? $product->name.' is currently out of stock.'
-                : 'Only '.$product->stock.' of '.$product->name.' are available.');
+                : 'Only '.$product->stock.' of '.$product->name.' are available.';
+
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $message], 422);
+            }
+
+            return back()->with('error', $message);
+        }
+
+        if ($request->expectsJson() && ! $request->has('buy_now') && $request->input('redirect') !== 'checkout') {
+            return response()->json([
+                'cart_count' => Cart::count(),
+                'message' => $product->name.' added to your cart.',
+            ]);
         }
 
         if ($request->has('buy_now') || $request->input('redirect') === 'checkout') {

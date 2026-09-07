@@ -86,6 +86,30 @@ class ShopTest extends TestCase
         $response->assertStatus(404);
     }
 
+    public function test_active_product_detail_renders_product_content_and_cart_form(): void
+    {
+        $product = Product::create([
+            'name' => 'Complete Detail Set',
+            'sku' => 'ALN-DET-1',
+            'price' => 2500,
+            'stock' => 10,
+            'is_active' => true,
+            'slug' => 'complete-detail-set',
+            'description' => 'A complete product description.',
+        ]);
+
+        $response = $this->get(route('products.show', $product));
+
+        $response->assertOk()
+            ->assertSee($product->name)
+            ->assertSee('PKR 2,500')
+            ->assertSee($product->description)
+            ->assertSee(route('cart.add', $product), false)
+            ->assertSee('How to Apply')
+            ->assertSee('Shipping &amp; Returns', false)
+            ->assertSee('Customer Reviews');
+    }
+
     public function test_shop_page_filters_by_multiple_categories_using_checkbox_array(): void
     {
         $category1 = Category::create(['name' => 'Soft Glam', 'slug' => 'soft-glam']);

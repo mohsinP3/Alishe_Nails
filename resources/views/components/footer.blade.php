@@ -30,6 +30,7 @@
                 <li><a href="{{ route('contact.index') }}">FAQs</a></li>
                 <li><a href="{{ route('policies.index') }}">Shipping &amp; Returns</a></li>
                 <li><a href="{{ route('how-to-apply.index') }}">Sizing Guide</a></li>
+                <li><a href="{{ route('custom-design.create') }}">Book a Custom Design</a></li>
                 <li><a href="{{ route('contact.index') }}">Order Help</a></li>
             </ul>
         </div>

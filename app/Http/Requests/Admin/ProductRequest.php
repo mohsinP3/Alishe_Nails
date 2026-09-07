@@ -31,6 +31,8 @@ class ProductRequest extends FormRequest
             // MIME + extension + size all checked here — Laravel's `image`
             // rule verifies actual image content, not just the filename.
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'gallery' => ['nullable', 'array', 'max:8'],
+            'gallery.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ];
     }
 }

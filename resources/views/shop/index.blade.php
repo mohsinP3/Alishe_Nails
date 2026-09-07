@@ -18,7 +18,7 @@
                     <a href="{{ route('shop.index') }}">Clear All</a>
                 </div>
 
-                <form method="GET" action="{{ route('shop.index') }}" id="filter-form">
+                <form method="GET" action="{{ route('shop.index') }}" id="filter-form" data-shop-form>
                     <input type="hidden" name="q" value="{{ request('q') }}">
                     <input type="hidden" name="sort" value="{{ request('sort') }}">
 
@@ -92,7 +92,7 @@
                         Showing {{ $products->firstItem() ?? 0 }}-{{ $products->lastItem() ?? 0 }} of {{ $products->total() }} products
                     </div>
                     <div class="shop-toolbar__actions">
-                        <form method="GET" action="{{ route('shop.index') }}" style="display:flex;gap:12px;">
+                        <form method="GET" action="{{ route('shop.index') }}" style="display:flex;gap:12px;" data-shop-form>
                             @foreach (['category', 'shape', 'length', 'finish'] as $key)
                                 @foreach ((array) request($key, []) as $value)
                                     <input type="hidden" name="{{ $key }}[]" value="{{ $value }}">
@@ -102,7 +102,7 @@
                             <input class="input-search" type="text" name="q" value="{{ request('q') }}" placeholder="Search styles...">
                         </form>
 
-                        <form method="GET" action="{{ route('shop.index') }}">
+                        <form method="GET" action="{{ route('shop.index') }}" data-shop-form>
                             @foreach (['category', 'shape', 'length', 'finish'] as $key)
                                 @foreach ((array) request($key, []) as $value)
                                     <input type="hidden" name="{{ $key }}[]" value="{{ $value }}">
@@ -125,9 +125,7 @@
                             @foreach ((array) request($key, []) as $value)
                                 <span class="filter-chip">
                                     {{ ucfirst($key) }}: {{ $value }}
-                                    <a href="{{ route('shop.index', array_merge(request()->except($key), [$key => array_diff((array) request($key, []), [$value])])) }}">
-                                        <button type="button">&times;</button>
-                                    </a>
+                                    <a href="{{ route('shop.index', array_merge(request()->except($key), [$key => array_diff((array) request($key, []), [$value])])) }}" class="filter-chip__remove" aria-label="Remove {{ $key }} filter">&times;</a>
                                 </span>
                             @endforeach
                         @endforeach

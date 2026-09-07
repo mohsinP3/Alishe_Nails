@@ -1,5 +1,9 @@
 @extends('layouts.app')
 @section('title', $product->name.' — Alishe Nails')
+@section('og_type', 'product')
+@section('og_title', $product->name.' — Alishe Nails')
+@section('og_description', $product->short_description ?: 'Shop '.$product->name.' from Alishe Nails.')
+@section('og_image', $product->image_url ?: asset('images/logo.jpeg'))
 
 @section('content')
 
@@ -25,12 +29,12 @@
                     @endforelse
                 </div>
 
-                <div class="product-gallery__main" data-gallery-main>
+                <div class="product-gallery__main" data-gallery-main tabindex="0" role="button" aria-label="Zoom product image">
                     @if ($product->image_url)
-                        <img src="{{ $product->image_url }}" alt="{{ $product->name }}">
+                        <img src="{{ $product->image_url }}" alt="{{ $product->name }}" data-image-fallback>
                     @else
                         <div class="img-placeholder">
-                            Image missing:<br>images/products/{{ $product->image ?? $product->slug.'.jpg' }}
+                            Alishe Nails<br>Image unavailable
                         </div>
                     @endif
                 </div>
@@ -83,7 +87,7 @@
                     <div class="option-group" data-option-group>
                         <div class="option-group__head">
                             <h6>Size</h6>
-                            <a href="{{ route('how-to-apply.index') }}">Sizing Guide</a>
+                            <button type="button" class="text-button" data-modal-open="size-guide-modal">Sizing Guide</button>
                         </div>
                         <div class="option-pills">
                             @foreach (['XS', 'S', 'M', 'L', 'Custom'] as $i => $size)
@@ -216,6 +220,24 @@
                 </div>
             </section>
         @endif
+    </div>
+
+    <div class="modal" id="size-guide-modal" data-modal aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="size-guide-title">
+        <div class="modal__backdrop" data-modal-close></div>
+        <div class="modal__panel">
+            <button type="button" class="modal__close" data-modal-close aria-label="Close size guide"><i class="fa-solid fa-xmark"></i></button>
+            <span class="eyebrow">Find your fit</span>
+            <h2 id="size-guide-title">Press-on Nail Size Guide</h2>
+            <p>Measure across the widest part of each natural nail in millimetres, then choose the closest size below.</p>
+            <div class="size-guide-table" role="table" aria-label="Nail size chart">
+                <div><strong>Size</strong><strong>Width</strong><strong>Best for</strong></div>
+                <div><span>XS</span><span>10-12 mm</span><span>Petite nail beds</span></div>
+                <div><span>S</span><span>12-14 mm</span><span>Small nail beds</span></div>
+                <div><span>M</span><span>14-16 mm</span><span>Most nail beds</span></div>
+                <div><span>L</span><span>16-18 mm</span><span>Wide nail beds</span></div>
+            </div>
+            <div class="size-guide-note"><i class="fa-solid fa-ruler"></i> No ruler? Place clear tape over the nail, mark both edges, then measure the tape against a ruler.</div>
+        </div>
     </div>
 
 @endsection

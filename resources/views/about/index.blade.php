@@ -22,7 +22,7 @@
                 @if (file_exists(public_path('images/brand/about-hands.jpg')))
                     <img src="{{ asset('images/brand/about-hands.jpg') }}" alt="Alishe Nails handmade press-on nails">
                 @else
-                    <div class="img-placeholder">Image missing: images/brand/about-hands.jpg</div>
+                    <div class="img-placeholder">Alishe Nails<br>Image unavailable</div>
                 @endif
             </div>
         </div>

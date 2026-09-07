@@ -18,6 +18,7 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\CustomDesignController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Customer\ProfileController;
 use App\Http\Controllers\HomeController;
@@ -27,6 +28,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PolicyController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -36,6 +38,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 
@@ -63,6 +66,8 @@ Route::get('/policies', [PolicyController::class, 'index'])->name('policies.inde
 
 Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
 Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:5,1')->name('contact.store');
+Route::get('/custom-design', [CustomDesignController::class, 'create'])->name('custom-design.create');
+Route::post('/custom-design', [CustomDesignController::class, 'store'])->middleware('throttle:5,1')->name('custom-design.store');
 
 Route::post('/newsletter/subscribe', [NewsletterController::class, 'store'])
     ->middleware('throttle:5,1')

@@ -124,6 +124,12 @@
                             @error('transaction_reference') <div class="error">{{ $message }}</div> @enderror
                         </div>
                     </div>
+
+                    <div class="checkout-trust" aria-label="Shopping assurances">
+                        <div><i class="fa-solid fa-truck-fast"></i><span><strong>Ships in 2-3 days</strong><small>Carefully packed by hand</small></span></div>
+                        <div><i class="fa-solid fa-hand-sparkles"></i><span><strong>100% Handmade</strong><small>Made with attention to detail</small></span></div>
+                        <div><i class="fa-solid fa-money-bill-wave"></i><span><strong>COD Available</strong><small>Pay when it arrives</small></span></div>
+                    </div>
                 </div>
 
                 <div>

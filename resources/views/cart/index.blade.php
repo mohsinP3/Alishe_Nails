@@ -25,7 +25,7 @@
                             <div class="cart-item__image">
                                 @php($url = $item['image'] && file_exists(public_path('images/products/'.$item['image'])) ? asset('images/products/'.$item['image']) : null)
                                 @if ($url)
-                                    <img src="{{ $url }}" alt="{{ $item['name'] }}">
+                                    <img src="{{ $url }}" alt="{{ $item['name'] }}" data-image-fallback>
                                 @else
                                     <div class="img-placeholder" style="font-size:.6rem;">No image</div>
                                 @endif

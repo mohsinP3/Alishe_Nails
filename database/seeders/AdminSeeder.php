@@ -16,11 +16,17 @@ class AdminSeeder extends Seeder
      */
     public function run(): void
     {
+        $password = env('ADMIN_SEED_PASSWORD');
+
+        if (app()->environment('production') && (! $password || $password === 'ChangeMe123!')) {
+            throw new \RuntimeException('Set a unique ADMIN_SEED_PASSWORD before seeding production.');
+        }
+
         Admin::firstOrCreate(
             ['email' => env('ADMIN_EMAIL', 'admin@alishenails.com')],
             [
                 'name' => 'Store Admin',
-                'password' => Hash::make(env('ADMIN_SEED_PASSWORD', 'ChangeMe123!')),
+                'password' => Hash::make($password ?: 'ChangeMe123!'),
             ]
         );
     }

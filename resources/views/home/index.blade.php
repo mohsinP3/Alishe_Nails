@@ -56,7 +56,7 @@
                             @if (file_exists(public_path($file)))
                                 <img src="{{ asset($file) }}" alt="{{ $collection->name }}">
                             @else
-                                <div class="img-placeholder">Image missing:<br>{{ $file }}</div>
+                                <div class="img-placeholder">Alishe Nails<br>Collection image unavailable</div>
                             @endif
                         </div>
                         <h4>{{ $collection->name }}</h4>
@@ -109,7 +109,7 @@
                     @if (file_exists(public_path('images/instagram/'.$img)))
                         <img src="{{ asset('images/instagram/'.$img) }}" alt="Alishe Nails on Instagram">
                     @else
-                        <div class="img-placeholder">Image missing:<br>images/instagram/{{ $img }}</div>
+                        <div class="img-placeholder">Alishe Nails<br>Social image unavailable</div>
                     @endif
                 </div>
             @endforeach

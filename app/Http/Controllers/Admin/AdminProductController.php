@@ -48,6 +48,11 @@ class AdminProductController extends Controller
             $validated['image'] = $this->storeImage($request);
         }
 
+        unset($validated['gallery']);
+        if ($request->hasFile('gallery')) {
+            $validated['gallery'] = $this->storeGallery($request);
+        }
+
         Product::create($validated);
 
         return redirect()->route('admin.products.index')->with('success', 'Product added.');
@@ -70,6 +75,11 @@ class AdminProductController extends Controller
 
         if ($request->hasFile('image')) {
             $validated['image'] = $this->storeImage($request);
+        }
+
+        unset($validated['gallery']);
+        if ($request->hasFile('gallery')) {
+            $validated['gallery'] = $this->storeGallery($request);
         }
 
         $product->update($validated);
@@ -101,6 +111,20 @@ class AdminProductController extends Controller
         $file->move(public_path('images/products'), $filename);
 
         return $filename;
+    }
+
+    private function storeGallery(Request $request): array
+    {
+        return collect($request->file('gallery', []))
+            ->map(function ($file) {
+                $extension = strtolower($file->getClientOriginalExtension());
+                $filename = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)).'-'.time().'-'.Str::random(6).'.'.$extension;
+                $file->move(public_path('images/products'), $filename);
+
+                return $filename;
+            })
+            ->values()
+            ->all();
     }
 
     private function uniqueSlug(string $name, ?Product $ignore = null): string

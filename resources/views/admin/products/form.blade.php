@@ -103,6 +103,30 @@
                     @endif
                 </div>
 
+                <div class="form-field full">
+                    <label for="gallery">Gallery Images</label>
+                    <input type="file" id="gallery" name="gallery[]" accept="image/jpeg,image/png,image/webp" multiple class="admin-file-input">
+                    <label for="gallery" class="admin-upload-trigger">
+                        <i class="fa-solid fa-plus"></i>
+                        <span data-gallery-file-label>Add gallery images</span>
+                    </label>
+                    <small style="display:block;margin-top:6px;color:rgba(43,29,29,.65);">Select up to 8 additional product photos. Uploading new gallery images replaces the current gallery.</small>
+                    @error('gallery') <div class="error">{{ $message }}</div> @enderror
+                    @error('gallery.*') <div class="error">{{ $message }}</div> @enderror
+
+                    @if ($product->gallery_urls)
+                        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+                            @foreach ($product->gallery_urls as $index => $url)
+                                <img src="{{ $url }}" alt="{{ $product->name }} gallery image {{ $index + 1 }}" style="width:80px;height:80px;object-fit:cover;border-radius:6px;">
+                            @endforeach
+                        </div>
+                        <div style="font-size:.75rem;color:rgba(43,29,29,.6);margin-top:4px;">Current gallery images.</div>
+                    @endif
+                </div>
+
+            </div>
+
+            <div class="admin-product-options">
                 <div class="form-field">
                     <label style="display:flex;align-items:center;gap:8px;">
                         <input type="checkbox" name="is_best_seller" value="1" {{ old('is_best_seller', $product->is_best_seller) ? 'checked' : '' }}>

@@ -9,15 +9,15 @@
             <span class="product-card__badge" style="background:#b3261e;">Only {{ $product->stock }} left</span>
         @endif
 
-        <button type="button" class="product-card__wishlist" aria-label="Add to wishlist" onclick="event.preventDefault()">
+        <button type="button" class="product-card__wishlist" data-wishlist-id="{{ $product->id }}" aria-label="Add {{ $product->name }} to wishlist" aria-pressed="false">
             <i class="fa-regular fa-heart"></i>
         </button>
 
         @if ($product->image_url)
-            <img src="{{ $product->image_url }}" alt="{{ $product->name }}" loading="lazy">
+            <img src="{{ $product->image_url }}" alt="{{ $product->name }}" loading="lazy" data-image-fallback>
         @else
             <div class="img-placeholder">
-                Image missing:<br>images/products/{{ $product->image ?? $product->slug.'.jpg' }}
+                Alishe Nails<br>Image unavailable
             </div>
         @endif
     </a>
